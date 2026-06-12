@@ -1,150 +1,53 @@
 <!doctype html>
 <html lang="uk">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>ЗП-VD</title>
-<link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#0f172a">
-<link rel="icon" href="/icon-192.png">
-<link rel="apple-touch-icon" href="/icon-192.png">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-:root{--bg:#f5f7fb;--card:#fff;--text:#172033;--muted:#667085;--green:#16a34a;--green2:#dcfce7;--blue:#2563eb;--red:#dc2626;--yellow:#f59e0b;--border:#e5e7eb;--shadow:0 10px 25px rgba(15,23,42,.08)}
-*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text)}
-.app{display:grid;grid-template-columns:280px 1fr;min-height:100vh}.side{background:#0f172a;color:#fff;padding:24px;position:sticky;top:0;height:100vh}.brand{font-size:22px;font-weight:800;margin-bottom:28px}.nav button{width:100%;margin:6px 0;padding:12px 14px;border:0;border-radius:12px;background:transparent;color:#cbd5e1;text-align:left;font-size:15px;cursor:pointer}.nav button.active,.nav button:hover{background:#1e293b;color:#fff}.main{padding:28px}.top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:22px}.card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:20px;box-shadow:var(--shadow);margin-bottom:18px}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.stat{padding:18px;border-radius:18px;background:#fff;border:1px solid var(--border)}.stat b{font-size:26px}.muted{color:var(--muted);font-size:13px}input,select,textarea{width:100%;padding:12px;border:1px solid var(--border);border-radius:12px;background:#fff;font-size:14px}label{display:block;font-size:13px;color:#344054;margin:10px 0 6px}.btn{border:0;border-radius:12px;padding:12px 16px;cursor:pointer;font-weight:700;background:var(--green);color:#fff}.btn.secondary{background:#e2e8f0;color:#0f172a}.btn.blue{background:var(--blue)}.btn.red{background:var(--red)}.btn.small{padding:8px 10px;font-size:12px}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.hidden{display:none!important}.table{width:100%;border-collapse:collapse}.table th,.table td{padding:10px;border-bottom:1px solid var(--border);text-align:left;font-size:14px}.pill{display:inline-flex;padding:4px 9px;border-radius:999px;font-size:12px;background:#e2e8f0}.pill.green{background:var(--green2);color:#166534}.pill.red{background:#fee2e2;color:#991b1b}.pill.yellow{background:#fef3c7;color:#92400e}.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}.day{min-height:92px;background:#fff;border:1px solid var(--border);border-radius:14px;padding:9px;cursor:pointer}.day:hover{border-color:var(--green)}.day.has{background:#f0fdf4;border-color:#86efac}.day.locked{background:#f8fafc;color:#94a3b8}.daynum{font-weight:800}.dirs{font-size:11px;color:#166534;margin-top:6px}.login{max-width:420px;margin:8vh auto}.checkboxes{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.check{display:flex;gap:8px;align-items:center;border:1px solid var(--border);padding:10px;border-radius:12px}.check input{width:auto}@media(max-width:900px){.app{grid-template-columns:1fr}.side{height:auto;position:static}.grid,.grid2{grid-template-columns:1fr}.calendar{grid-template-columns:repeat(2,1fr)}}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ЗП-VD</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0f172a">
+  <style>
+    :root{--bg:#f1f5f9;--card:#fff;--text:#0f172a;--muted:#64748b;--green:#16a34a;--line:#e2e8f0;--red:#dc2626;--blue:#2563eb;--amber:#d97706}
+    *{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--text)}
+    .wrap{max-width:1180px;margin:0 auto;padding:18px}.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:0 18px 50px #0f172a12}.login{max-width:460px;margin:8vh auto}.title{font-size:34px;font-weight:800;margin:0 0 18px}.muted{color:var(--muted);font-size:14px}.row{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}.col-3{grid-column:span 3}.col-4{grid-column:span 4}.col-6{grid-column:span 6}.col-8{grid-column:span 8}.col-12{grid-column:span 12}
+    input,select,textarea{width:100%;padding:12px 14px;border:1px solid #cbd5e1;border-radius:13px;font-size:15px;background:white}textarea{min-height:90px}label{font-size:14px;color:#334155;margin:10px 0 6px;display:block}button{border:0;border-radius:13px;padding:12px 16px;font-weight:700;cursor:pointer;background:var(--green);color:white}button.secondary{background:#e2e8f0;color:#0f172a}button.red{background:var(--red)}button.blue{background:var(--blue)}button.small{padding:8px 10px;font-size:13px}.nav{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.nav button{background:white;color:#0f172a;border:1px solid var(--line)}.nav button.active{background:#0f172a;color:#fff}.top{display:flex;justify-content:space-between;gap:10px;align-items:center}.grid-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.stat{padding:16px;border-radius:18px;border:1px solid var(--line);background:#fff}.stat b{font-size:24px}table{width:100%;border-collapse:collapse;background:white;border-radius:16px;overflow:hidden}th,td{padding:11px;border-bottom:1px solid var(--line);text-align:left;font-size:14px}th{background:#f8fafc}.pill{display:inline-flex;padding:4px 8px;border-radius:999px;background:#e2e8f0;font-size:12px;margin:2px}.pill.green{background:#dcfce7;color:#166534}.pill.blue{background:#dbeafe;color:#1d4ed8}.pill.red{background:#fee2e2;color:#991b1b}.hidden{display:none!important}.checkrow{display:flex;gap:8px;flex-wrap:wrap}.checkrow label{border:1px solid var(--line);border-radius:999px;padding:8px 12px;margin:0;background:white}.checkrow input{width:auto}.calendar{display:grid;grid-template-columns:repeat(7,1fr);border:1px solid var(--line);border-radius:18px;overflow:hidden;background:white}.day{min-height:92px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:8px;font-size:13px}.day:nth-child(7n){border-right:0}.day b{display:block;margin-bottom:6px}.day.locked{background:#f8fafc;color:#94a3b8}@media(max-width:800px){.row{display:block}.col-3,.col-4,.col-6,.col-8,.col-12{grid-column:auto;margin-bottom:12px}.grid-cards{grid-template-columns:1fr 1fr}.top{align-items:flex-start}.calendar{grid-template-columns:repeat(2,1fr)}}
+  </style>
 </head>
 <body>
-<div id="loginView" class="login card">
-  <h1>ЗП-VD</h1>
-  <p class="muted">Вхід по позивному/логіну та паролю. Пристрій запам’ятовується.</p>
-  <label>Позивний / логін</label><input id="loginCallsign" placeholder="Наприклад: mechanik" />
-  <label>Пароль</label><input id="loginPassword" type="password" placeholder="Пароль" />
-  <label class="check"><input id="rememberMe" type="checkbox" checked /> Запам’ятати цей пристрій</label>
-  <button class="btn" onclick="login()">Увійти</button>
-  <p class="muted">Перший адмін: <b>admin</b> / <b>admin123</b>. Потім змініть пароль.</p>
-</div>
-
-<div id="appView" class="app hidden">
-  <aside class="side">
-    <div class="brand">🚁 ЗП-VD</div>
-    <div id="userBox" class="muted"></div>
-    <div class="nav">
-      <button data-tab="dashboard" onclick="showTab('dashboard')" class="active">Мій кабінет</button>
-      <button data-tab="days" onclick="showTab('days')">Робочі дні</button>
-      <button data-tab="admin" onclick="showTab('admin')">Адмінка</button>
-      <button data-tab="leader" onclick="showTab('leader')">Мій напрямок</button>
-      <button data-tab="employees" onclick="showTab('employees')">Працівники</button>
-      <button data-tab="locks" onclick="showTab('locks')">Закриття місяця</button>
-    </div>
-    <button class="btn secondary" onclick="logout()" style="margin-top:20px;width:100%">Вийти / забути пристрій</button>
-  </aside>
-  <main class="main">
-    <div class="top"><h1 id="pageTitle">Мій кабінет</h1><div class="row"><input id="monthPicker" type="month" onchange="loadAll()" /></div></div>
-
-    <section id="tab-dashboard">
-      <div class="grid" id="stats"></div>
-      <div class="card"><h2>Календар</h2><div class="calendar" id="calendar"></div></div>
-    </section>
-
-    <section id="tab-days" class="hidden">
-      <div class="card"><h2>Додати / редагувати робочий день</h2>
-        <input type="hidden" id="workId" />
-        <label>Дата</label><input id="workDate" type="date" />
-        <label>Напрямки</label><div class="checkboxes" id="directionsBox"></div>
-        <div class="grid2"><div><label>Пальне</label><input id="fuel" type="number" value="0" /></div><div><label>Амортизація</label><input id="amortization" type="number" value="0" /></div></div>
-        <label>Проживання</label><input id="accommodation" type="number" value="0" />
-        <label>Коментар</label><textarea id="comment"></textarea>
-        <div class="row" style="margin-top:14px"><button class="btn" onclick="saveWorkDay()">Зберегти звіт</button><button class="btn secondary" onclick="clearWorkForm()">Очистити</button></div>
-      </div>
-      <div class="card"><h2>Мої записи</h2><table class="table"><thead><tr><th>Дата</th><th>Напрямки</th><th>Витрати</th><th>Подано</th><th></th></tr></thead><tbody id="myDaysTable"></tbody></table></div>
-    </section>
-
-    <section id="tab-admin" class="hidden">
-      <div class="card"><h2>Звіт за місяць</h2><table class="table"><thead><tr><th>Працівник</th><th>Тип</th><th>Днів</th><th>Витрати</th><th>Утримання</th><th>До виплати</th></tr></thead><tbody id="summaryTable"></tbody></table></div>
-      <div class="card"><h2>Історія подачі звітів</h2><table class="table"><thead><tr><th>Працівник</th><th>Дата роботи</th><th>Подано</th><th>Оновлено</th><th>Позначка</th></tr></thead><tbody id="historyTable"></tbody></table></div>
-    </section>
-
-
-    <section id="tab-leader" class="hidden">
-      <div class="card"><h2>Звіт по моєму напрямку</h2>
-        <p class="muted">Режим перегляду без редагування. Старший групи бачить тільки записи, де вказаний його напрямок.</p>
-        <div id="leaderInfo" style="margin-bottom:12px"></div>
-        <table class="table"><thead><tr><th>Працівник</th><th>Дата</th><th>Напрямки</th><th>Витрати</th><th>Подано</th><th>Оновлено</th></tr></thead><tbody id="leaderTable"></tbody></table>
-      </div>
-    </section>
-
-    <section id="tab-employees" class="hidden">
-      <div class="card"><h2>Працівник</h2>
-        <input type="hidden" id="empId" />
-        <div class="grid2"><div><label>ПІБ</label><input id="empName" /></div><div><label>Позивний / логін</label><input id="empCallsign" /></div></div>
-        <div class="grid2"><div><label>Пароль</label><input id="empPassword" /></div><div><label>Телефон</label><input id="empPhone" /></div></div>
-        <div class="grid2"><div><label>Email</label><input id="empEmail" type="email" /></div><div><label>Дата народження</label><input id="empBirth" type="date" /></div></div>
-        <div class="grid2"><div><label>Статус</label><select id="empType"><option value="employee">Працевлаштований</option><option value="freelancer">Фрілансер</option></select></div><div><label>Стан</label><select id="empStatus"><option value="active">Активний</option><option value="dismissed">Звільнений</option></select></div></div>
-        <div class="grid2"><div><label>Роль</label><select id="empRole" onchange="toggleLeaderDirection()"><option value="user">Працівник</option><option value="leader">Старший групи</option><option value="admin">Адмін</option></select></div><div id="leaderDirectionWrap"><label>Напрямок для старшого групи</label><select id="empLeaderDirection"><option value="">— не обрано —</option></select></div></div>
-        <div class="row" style="margin-top:14px"><button class="btn" onclick="saveEmployee()">Зберегти працівника</button><button class="btn secondary" onclick="clearEmployeeForm()">Новий</button></div>
-      </div>
-      <div class="card"><h2>Список працівників</h2><table class="table"><thead><tr><th>ПІБ</th><th>Позивний</th><th>Роль</th><th>Напрямок</th><th>Тип</th><th>Стан</th><th></th></tr></thead><tbody id="employeesTable"></tbody></table></div>
-    </section>
-
-    <section id="tab-locks" class="hidden">
-      <div class="card"><h2>Закриття місяця</h2>
-        <p class="muted">Можна закрити місяць для всіх або вибрати окремих працівників. Закритий місяць працівник не зможе редагувати.</p>
-        <label>Режим</label><select id="lockMode" onchange="renderLockEmployees()"><option value="all">Закрити всім</option><option value="selected">Закрити вибраним</option></select>
-        <div id="lockEmployees" class="checkboxes" style="margin-top:12px"></div>
-        <div class="row" style="margin-top:14px"><button class="btn red" onclick="lockMonth()">Закрити місяць</button><button class="btn secondary" onclick="unlockMonth()">Відкрити місяць</button></div>
-      </div>
-      <div class="card"><h2>Статус закриття</h2><div id="locksList"></div></div>
-    </section>
-  </main>
-</div>
+<div id="app"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const SUPABASE_URL='https://gahbfqpkgnbezkfqkziy.supabase.co';
-const SUPABASE_KEY='sb_publishable_xRk6B66TkytVRztLnOq6cQ_Zzn4awMW';
-const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-const DIRS=['Софт','FPV','Класика','БЗВП','Online'];
-let currentUser=null, allEmployees=[], myDays=[], locks=[], leaderDays=[];
-function $(id){return document.getElementById(id)}
-function money(n){return (Number(n)||0).toLocaleString('uk-UA')+' грн'}
-function monthVal(){return $('monthPicker').value || new Date().toISOString().slice(0,7)}
-function monthStart(){return monthVal()+'-01'}
-function monthEnd(){let [y,m]=monthVal().split('-').map(Number);return new Date(y,m,0).toISOString().slice(0,10)}
-function init(){ $('monthPicker').value=new Date().toISOString().slice(0,7); renderDirs(); const saved=localStorage.getItem('salary_user'); if(saved){currentUser=JSON.parse(saved); enterApp()} }
-function renderDirs(){ $('directionsBox').innerHTML=DIRS.map(d=>`<label class="check"><input type="checkbox" value="${d}">${d}</label>`).join(''); if($('empLeaderDirection')) $('empLeaderDirection').innerHTML='<option value="">— не обрано —</option>'+DIRS.map(d=>`<option value="${d}">${d}</option>`).join(''); }
-async function login(){ const callsign=$('loginCallsign').value.trim(); const password=$('loginPassword').value.trim(); const {data,error}=await db.from('users').select('*').eq('callsign',callsign).eq('password',password).maybeSingle(); if(error||!data){alert('Невірний логін або пароль');return} if(data.worker_status==='dismissed'){alert('Користувач звільнений');return} currentUser=data; if($('rememberMe').checked)localStorage.setItem('salary_user',JSON.stringify(data)); enterApp(); }
+const SUPABASE_URL = 'https://gahbfqpkgnbezkfqkziy.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_xRk6B66TkytVRztLnOq6cQ_Zzn4awMW';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {auth:{persistSession:true,autoRefreshToken:true}});
+const directions = ['Софт','FPV','Класика','БЗВП','Online'];
+let me=null, profile=null, tab='dashboard';
+const app=document.getElementById('app');
+const fmt=n=>Number(n||0).toLocaleString('uk-UA')+' грн';
+const ym=()=>new Date().toISOString().slice(0,7)+'-01';
+function msg(t){alert(t)}
+async function init(){const {data:{user}}=await sb.auth.getUser();me=user||null;if(me){await loadProfile()}render()}
+async function loadProfile(){const {data,error}=await sb.from('users').select('*').eq('auth_id',me.id).maybeSingle();profile=data||null;if(error)console.warn(error)}
+async function login(){const email=document.getElementById('email').value.trim();const password=document.getElementById('password').value;const {error}=await sb.auth.signInWithPassword({email,password});if(error)return msg('Помилка входу: '+error.message);await init()}
+async function logout(){await sb.auth.signOut();me=null;profile=null;render()}
+function render(){if(!me)return renderLogin(); if(!profile)return renderNoProfile(); renderApp()}
+function renderLogin(){app.innerHTML=`<div class="wrap"><div class="card login"><h1 class="title">ЗП-VD</h1><p class="muted">Вхід через email та пароль. Пристрій запам’ятовується автоматично.</p><label>Email</label><input id="email" type="email" placeholder="name@example.com"><label>Пароль</label><input id="password" type="password" placeholder="Пароль"><div style="height:14px"></div><button onclick="login()">Увійти</button><p class="muted">Першого адміністратора створюємо в Supabase Auth, а профіль прив’язуємо в таблиці users.</p></div></div>`}
+function renderNoProfile(){app.innerHTML=`<div class="wrap"><div class="card login"><h1 class="title">Профіль не знайдено</h1><p>Ваш email авторизований, але профіль працівника ще не прив’язаний у таблиці <b>users</b>.</p><p class="muted">ID користувача Auth:</p><input readonly value="${me.id}"><p class="muted">Email:</p><input readonly value="${me.email||''}"><button onclick="logout()" class="secondary">Вийти</button></div></div>`}
+function nav(){const items=[['dashboard','Головна'],['days','Робочі дні']]; if(profile.role==='admin')items.push(['employees','Працівники'],['reports','Звіти'],['locks','Закриття місяця']); if(profile.role==='leader')items.push(['leader','Мій напрямок']); return `<div class="nav">${items.map(i=>`<button class="${tab===i[0]?'active':''}" onclick="tab='${i[0]}';renderApp()">${i[1]}</button>`).join('')}<button onclick="logout()" class="secondary">Вийти</button></div>`}
+async function renderApp(){app.innerHTML=`<div class="wrap"><div class="top"><div><h1 class="title">ЗП-VD</h1><div class="muted">${profile.full_name||''} ${profile.callsign?'('+profile.callsign+')':''} · ${roleName(profile.role)}</div></div></div>${nav()}<div id="screen" class="card">Завантаження...</div></div>`; if(tab==='dashboard')screenDashboard(); if(tab==='days')screenDays(); if(tab==='employees')screenEmployees(); if(tab==='reports')screenReports(); if(tab==='locks')screenLocks(); if(tab==='leader')screenLeader()}
 function roleName(r){return r==='admin'?'Адмін':r==='leader'?'Старший групи':'Працівник'}
-function enterApp(){ $('loginView').classList.add('hidden'); $('appView').classList.remove('hidden'); $('userBox').innerHTML=`${currentUser.full_name}<br>@${currentUser.callsign}<br>${roleName(currentUser.role)}${currentUser.role==='leader'?`<br>${currentUser.leader_direction||'напрямок не задано'}`:''}`; document.querySelectorAll('[data-tab="admin"],[data-tab="employees"],[data-tab="locks"]').forEach(b=>b.style.display=currentUser.role==='admin'?'block':'none'); document.querySelectorAll('[data-tab="leader"]').forEach(b=>b.style.display=(currentUser.role==='leader'||currentUser.role==='admin')?'block':'none'); loadAll(); }
-function logout(){localStorage.removeItem('salary_user');location.reload()}
-function showTab(t){document.querySelectorAll('main section').forEach(s=>s.classList.add('hidden')); $('tab-'+t).classList.remove('hidden'); document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active')); document.querySelector(`[data-tab="${t}"]`).classList.add('active'); $('pageTitle').textContent=document.querySelector(`[data-tab="${t}"]`).textContent; loadAll();}
-async function loadAll(){ if(!currentUser)return; await Promise.all([loadEmployees(),loadLocks(),loadMyDays(),loadSummary()]); renderAll(); }
-async function loadEmployees(){ const {data}=await db.from('users').select('*').order('full_name'); allEmployees=data||[]; }
-async function loadLocks(){ const {data}=await db.from('month_locks').select('*').eq('salary_month',monthStart()); locks=data||[]; }
-async function loadMyDays(){ const {data}=await db.from('work_days').select('*').eq('user_id',currentUser.id).gte('work_date',monthStart()).lte('work_date',monthEnd()).order('work_date'); myDays=data||[]; }
-async function loadSummary(){ window.summary=[]; window.hist=[]; leaderDays=[]; if(currentUser.role==='admin'){ const {data}=await db.from('salary_summary').select('*').eq('salary_month',monthStart()).order('full_name'); window.summary=data||[]; const {data:hist}=await db.from('work_days').select('*,users(full_name,callsign)').gte('work_date',monthStart()).lte('work_date',monthEnd()).order('submitted_at',{ascending:false}); window.hist=hist||[]; } if(currentUser.role==='leader'||currentUser.role==='admin'){ const dir=currentUser.role==='leader'?currentUser.leader_direction:null; let q=db.from('work_days').select('*,users(full_name,callsign)').gte('work_date',monthStart()).lte('work_date',monthEnd()).order('work_date',{ascending:false}); const {data:ld}=await q; leaderDays=(ld||[]).filter(d=>currentUser.role==='admin'||(dir&&(d.directions||[]).includes(dir))); } }
-function renderAll(){ renderStats(); renderCalendar(); renderMyDays(); renderEmployees(); renderSummary(); renderHistory(); renderLeaderReport(); renderLockEmployees(); renderLocks(); }
-function isLocked(userId=currentUser.id){ return locks.some(l=>l.user_id===null || l.user_id===userId); }
-function renderStats(){ const days=myDays.length, fuel=myDays.reduce((s,d)=>s+Number(d.fuel||0),0), amo=myDays.reduce((s,d)=>s+Number(d.amortization||0),0), acc=myDays.reduce((s,d)=>s+Number(d.accommodation||0),0); const base=days*2500, deduction=currentUser.employment_type==='employee'?48000:0, total=base+fuel+amo+acc-deduction; $('stats').innerHTML=[['Днів',days],['Зарплата',money(base)],['Витрати',money(fuel+amo+acc)],['До виплати',money(total)]].map(x=>`<div class="stat"><div class="muted">${x[0]}</div><b>${x[1]}</b></div>`).join('')+`<div class="card" style="grid-column:1/-1">${isLocked()?'<span class="pill red">🔒 Місяць закрито</span>':'<span class="pill green">Місяць відкритий</span>'}</div>`; }
-function renderCalendar(){ let [y,m]=monthVal().split('-').map(Number); let last=new Date(y,m,0).getDate(); let html=''; for(let d=1;d<=last;d++){let date=`${monthVal()}-${String(d).padStart(2,'0')}`; let rec=myDays.find(x=>x.work_date===date); html+=`<div class="day ${rec?'has':''} ${isLocked()?'locked':''}" onclick="openDay('${date}')"><div class="daynum">${d}</div>${rec?`<div class="dirs">${(rec.directions||[]).join(', ')}</div><div class="muted">${money(Number(rec.fuel)+Number(rec.amortization)+Number(rec.accommodation))}</div>`:''}</div>`} $('calendar').innerHTML=html; }
-function openDay(date){ showTab('days'); const rec=myDays.find(x=>x.work_date===date); clearWorkForm(); $('workDate').value=date; if(rec){$('workId').value=rec.id; document.querySelectorAll('#directionsBox input').forEach(i=>i.checked=(rec.directions||[]).includes(i.value)); $('fuel').value=rec.fuel||0; $('amortization').value=rec.amortization||0; $('accommodation').value=rec.accommodation||0; $('comment').value=rec.comment||'';} }
-function clearWorkForm(){['workId','workDate','comment'].forEach(id=>$(id).value=''); ['fuel','amortization','accommodation'].forEach(id=>$(id).value=0); document.querySelectorAll('#directionsBox input').forEach(i=>i.checked=false)}
-async function saveWorkDay(){ if(isLocked()){alert('Цей місяць закритий. Редагування недоступне.');return} const directions=[...document.querySelectorAll('#directionsBox input:checked')].map(i=>i.value); if(!$('workDate').value||!directions.length){alert('Вкажіть дату і хоча б один напрямок');return} const row={user_id:currentUser.id,work_date:$('workDate').value,directions,fuel:Number($('fuel').value||0),amortization:Number($('amortization').value||0),accommodation:Number($('accommodation').value||0),comment:$('comment').value||''}; let res; if($('workId').value)res=await db.from('work_days').update(row).eq('id',$('workId').value); else res=await db.from('work_days').insert(row); if(res.error){alert(res.error.message);return} clearWorkForm(); await loadAll(); alert('Звіт збережено'); }
-function renderMyDays(){ $('myDaysTable').innerHTML=myDays.map(d=>`<tr><td>${d.work_date}</td><td>${(d.directions||[]).join(', ')}</td><td>${money(Number(d.fuel)+Number(d.amortization)+Number(d.accommodation))}</td><td>${new Date(d.submitted_at).toLocaleString('uk-UA')}</td><td><button class="btn small secondary" onclick="openDay('${d.work_date}')">Відкрити</button></td></tr>`).join('')||'<tr><td colspan="5">Записів немає</td></tr>'; }
-async function saveEmployee(){ const row={full_name:$('empName').value,callsign:$('empCallsign').value,password:$('empPassword').value,phone:$('empPhone').value,email:$('empEmail').value,birth_date:$('empBirth').value||null,employment_type:$('empType').value,worker_status:$('empStatus').value,role:$('empRole').value,leader_direction:$('empRole').value==='leader'?$('empLeaderDirection').value:null}; if(!row.full_name||!row.callsign||!row.password){alert('ПІБ, логін і пароль обов’язкові');return} if(row.role==='leader'&&!row.leader_direction){alert('Для старшого групи оберіть напрямок');return} let res=$('empId').value?await db.from('users').update(row).eq('id',$('empId').value):await db.from('users').insert(row); if(res.error){alert(res.error.message);return} clearEmployeeForm(); await loadAll(); }
-function clearEmployeeForm(){['empId','empName','empCallsign','empPassword','empPhone','empEmail','empBirth'].forEach(id=>$(id).value=''); $('empType').value='employee';$('empStatus').value='active';$('empRole').value='user';$('empLeaderDirection').value='';toggleLeaderDirection()}
-function editEmp(id){ const e=allEmployees.find(x=>x.id===id); if(!e)return; $('empId').value=e.id;$('empName').value=e.full_name;$('empCallsign').value=e.callsign;$('empPassword').value=e.password;$('empPhone').value=e.phone||'';$('empEmail').value=e.email||'';$('empBirth').value=e.birth_date||'';$('empType').value=e.employment_type;$('empStatus').value=e.worker_status;$('empRole').value=e.role;$('empLeaderDirection').value=e.leader_direction||'';toggleLeaderDirection(); window.scrollTo(0,0)}
-function renderEmployees(){ if(!$('employeesTable'))return; $('employeesTable').innerHTML=allEmployees.map(e=>`<tr><td>${e.full_name}</td><td>@${e.callsign}</td><td>${roleName(e.role)}</td><td>${e.leader_direction||'—'}</td><td>${e.employment_type==='employee'?'Працевлаштований':'Фрілансер'}</td><td><span class="pill ${e.worker_status==='active'?'green':'red'}">${e.worker_status==='active'?'Активний':'Звільнений'}</span></td><td><button class="btn small secondary" onclick="editEmp('${e.id}')">Редагувати</button></td></tr>`).join(''); }
-
-function toggleLeaderDirection(){ if(!$('leaderDirectionWrap'))return; $('leaderDirectionWrap').style.display=$('empRole').value==='leader'?'block':'none'; }
-function renderLeaderReport(){ if(!$('leaderTable'))return; const dir=currentUser?.role==='leader'?currentUser.leader_direction:'всі напрямки'; $('leaderInfo').innerHTML=currentUser?.role==='leader'?`<span class="pill green">Напрямок: ${dir||'не задано'}</span>`:`<span class="pill green">Адмін бачить усі напрямки</span>`; $('leaderTable').innerHTML=(leaderDays||[]).map(d=>`<tr><td>${d.users?.full_name||''}<br><span class="muted">@${d.users?.callsign||''}</span></td><td>${d.work_date}</td><td>${(d.directions||[]).join(', ')}</td><td>${money(Number(d.fuel)+Number(d.amortization)+Number(d.accommodation))}</td><td>${new Date(d.submitted_at).toLocaleString('uk-UA')}</td><td>${new Date(d.updated_at).toLocaleString('uk-UA')}</td></tr>`).join('')||'<tr><td colspan="6">Записів по напрямку немає</td></tr>'; }
-function renderSummary(){ if(currentUser.role!=='admin'||!$('summaryTable'))return; $('summaryTable').innerHTML=(window.summary||[]).map(s=>`<tr><td>${s.full_name}<br><span class="muted">@${s.callsign}</span></td><td>${s.employment_type==='employee'?'Працевлаштований':'Фрілансер'}</td><td>${s.work_days_count}</td><td>${money(Number(s.fuel_total)+Number(s.amortization_total)+Number(s.accommodation_total))}</td><td>${money(s.employee_deduction)}</td><td><b>${money(s.total_to_pay)}</b></td></tr>`).join('')||'<tr><td colspan="6">Даних немає</td></tr>'; }
-function renderHistory(){ if(currentUser.role!=='admin'||!$('historyTable'))return; $('historyTable').innerHTML=(window.hist||[]).map(d=>{const late=(new Date(d.submitted_at)-new Date(d.work_date))/(864e5)>3;return `<tr><td>${d.users?.full_name||''}</td><td>${d.work_date}</td><td>${new Date(d.submitted_at).toLocaleString('uk-UA')}</td><td>${new Date(d.updated_at).toLocaleString('uk-UA')}</td><td>${late?'<span class="pill yellow">⚠ запізно</span>':'<span class="pill green">вчасно</span>'}</td></tr>`}).join('')||'<tr><td colspan="5">Історії немає</td></tr>'; }
-function renderLockEmployees(){ if(!$('lockEmployees'))return; $('lockEmployees').style.display=$('lockMode').value==='selected'?'grid':'none'; $('lockEmployees').innerHTML=allEmployees.filter(e=>e.worker_status==='active').map(e=>`<label class="check"><input type="checkbox" value="${e.id}">${e.full_name} (@${e.callsign})</label>`).join(''); }
-async function lockMonth(){ if(currentUser.role!=='admin')return; const selected=$('lockMode').value==='all'?[null]:[...document.querySelectorAll('#lockEmployees input:checked')].map(i=>i.value); if($('lockMode').value==='selected'&&!selected.length){alert('Оберіть працівників');return} const rows=selected.map(uid=>({salary_month:monthStart(),user_id:uid,locked_by:currentUser.id,note:'Закрито з адмінки'})); const {error}=await db.from('month_locks').upsert(rows,{onConflict:'salary_month,user_id'}); if(error){alert(error.message);return} await loadAll(); }
-async function unlockMonth(){ if(currentUser.role!=='admin')return; if(!confirm('Відкрити місяць?'))return; if($('lockMode').value==='all') await db.from('month_locks').delete().eq('salary_month',monthStart()); else {const ids=[...document.querySelectorAll('#lockEmployees input:checked')].map(i=>i.value); for(const id of ids) await db.from('month_locks').delete().eq('salary_month',monthStart()).eq('user_id',id);} await loadAll(); }
-function renderLocks(){ if(!$('locksList'))return; const all=locks.some(l=>l.user_id===null); $('locksList').innerHTML=all?'<span class="pill red">🔒 Закрито всім</span>':(locks.map(l=>`<span class="pill red">${allEmployees.find(e=>e.id===l.user_id)?.full_name||'Працівник'} — закрито</span>`).join(' ')||'<span class="pill green">Місяць відкритий</span>'); }
+async function screenDashboard(){const m=ym();let q=sb.from('salary_summary').select('*').eq('salary_month',m); if(profile.role!=='admin')q=q.eq('user_id',profile.id); const {data}=await q; const rows=data||[]; const total=rows.reduce((s,r)=>s+Number(r.total_to_pay||0),0); document.getElementById('screen').innerHTML=`<h2>Головна</h2><div class="grid-cards"><div class="stat"><span class="muted">Місяць</span><br><b>${m.slice(0,7)}</b></div><div class="stat"><span class="muted">Записів у звіті</span><br><b>${rows.length}</b></div><div class="stat"><span class="muted">До виплати</span><br><b>${fmt(total)}</b></div><div class="stat"><span class="muted">Роль</span><br><b>${roleName(profile.role)}</b></div></div>`}
+async function screenDays(){document.getElementById('screen').innerHTML=`<h2>Робочі дні</h2><div class="row"><div class="col-4"><label>Дата</label><input id="wd_date" type="date" value="${new Date().toISOString().slice(0,10)}"></div><div class="col-8"><label>Напрямки</label><div class="checkrow">${directions.map(d=>`<label><input type="checkbox" name="dir" value="${d}"> ${d}</label>`).join('')}</div></div><div class="col-4"><label>Пальне</label><input id="fuel" type="number" value="0"></div><div class="col-4"><label>Амортизація</label><input id="amort" type="number" value="0"></div><div class="col-4"><label>Проживання</label><input id="acc" type="number" value="0"></div><div class="col-12"><label>Коментар</label><textarea id="comment"></textarea></div><div class="col-12"><button onclick="saveDay()">Зберегти день</button></div></div><hr><div id="mydays">Завантаження...</div>`;loadDays()}
+async function saveDay(){const ds=[...document.querySelectorAll('input[name=dir]:checked')].map(x=>x.value); if(!ds.length)return msg('Оберіть хоча б один напрямок'); const rec={user_id:profile.id,work_date:wd_date.value,directions:ds,direction:ds[0],fuel:+fuel.value||0,amortization:+amort.value||0,accommodation:+acc.value||0,comment:comment.value||''}; const {error}=await sb.from('work_days').upsert(rec,{onConflict:'user_id,work_date'}); if(error)return msg(error.message); msg('Збережено'); screenDays()}
+async function loadDays(){const {data,error}=await sb.from('work_days').select('*').eq('user_id',profile.id).order('work_date',{ascending:false}).limit(60); if(error)return mydays.innerHTML=error.message; mydays.innerHTML=tableDays(data||[],false)}
+function tableDays(rows,showUser){if(!rows.length)return '<p class="muted">Записів немає</p>'; return `<table><thead><tr>${showUser?'<th>Працівник</th>':''}<th>Дата</th><th>Напрямки</th><th>Витрати</th><th>Подано</th><th>Змінено</th></tr></thead><tbody>${rows.map(r=>`<tr>${showUser?`<td>${r.users?.full_name||''}</td>`:''}<td>${r.work_date}</td><td>${(r.directions||[r.direction]).map(d=>`<span class="pill blue">${d}</span>`).join('')}</td><td>${fmt((+r.fuel||0)+(+r.amortization||0)+(+r.accommodation||0))}</td><td>${new Date(r.created_at).toLocaleString('uk-UA')}</td><td>${r.updated_at?new Date(r.updated_at).toLocaleString('uk-UA'):''}</td></tr>`).join('')}</tbody></table>`}
+async function screenEmployees(){document.getElementById('screen').innerHTML=`<h2>Працівники</h2><div class="row"><div class="col-3"><label>ПІБ</label><input id="e_full"></div><div class="col-3"><label>Позивний</label><input id="e_call"></div><div class="col-3"><label>Email</label><input id="e_email" type="email"></div><div class="col-3"><label>Телефон</label><input id="e_phone"></div><div class="col-3"><label>Дата народження</label><input id="e_birth" type="date"></div><div class="col-3"><label>Статус</label><select id="e_emp"><option value="employee">Працевлаштований</option><option value="freelancer">Фрілансер</option></select></div><div class="col-3"><label>Стан</label><select id="e_status"><option value="active">Активний</option><option value="dismissed">Звільнений</option></select></div><div class="col-3"><label>Роль</label><select id="e_role"><option value="user">Працівник</option><option value="leader">Старший групи</option><option value="admin">Адмін</option></select></div><div class="col-3"><label>Напрямок старшого</label><select id="e_leader"><option value="">—</option>${directions.map(d=>`<option>${d}</option>`).join('')}</select></div><div class="col-12"><button onclick="addEmployee()">Додати профіль</button></div></div><hr><div id="emps">Завантаження...</div>`;loadEmployees()}
+async function addEmployee(){const rec={full_name:e_full.value,callsign:e_call.value,email:e_email.value,phone:e_phone.value||null,birth_date:e_birth.value||null,employment_type:e_emp.value,status:e_status.value,role:e_role.value,leader_direction:e_leader.value||null}; const {error}=await sb.from('users').insert(rec); if(error)return msg(error.message); msg('Профіль додано. Тепер прив’яжіть auth_id після створення користувача в Supabase Auth.'); screenEmployees()}
+async function loadEmployees(){const {data,error}=await sb.from('users').select('*').order('full_name'); if(error)return emps.innerHTML=error.message; emps.innerHTML=`<table><thead><tr><th>ПІБ</th><th>Позивний</th><th>Email</th><th>Роль</th><th>Статус</th><th>Стан</th><th>Auth ID</th></tr></thead><tbody>${(data||[]).map(u=>`<tr><td>${u.full_name}</td><td>${u.callsign||''}</td><td>${u.email||''}</td><td>${roleName(u.role)}</td><td>${u.employment_type==='employee'?'Працевлаштований':'Фрілансер'}</td><td>${u.status==='active'?'Активний':'Звільнений'}</td><td class="muted">${u.auth_id||'не прив’язано'}</td></tr>`).join('')}</tbody></table>`}
+async function screenReports(){const {data,error}=await sb.from('salary_summary').select('*').order('salary_month',{ascending:false}); document.getElementById('screen').innerHTML='<h2>Звіти</h2>'+ (error?error.message:`<table><thead><tr><th>Місяць</th><th>ПІБ</th><th>Днів</th><th>Зарплата</th><th>Витрати</th><th>Утримання</th><th>До виплати</th></tr></thead><tbody>${(data||[]).map(r=>`<tr><td>${r.salary_month}</td><td>${r.full_name}</td><td>${r.work_days_count}</td><td>${fmt(r.base_salary)}</td><td>${fmt((+r.fuel_total||0)+(+r.amortization_total||0)+(+r.accommodation_total||0))}</td><td>${fmt(r.employee_deduction)}</td><td><b>${fmt(r.total_to_pay)}</b></td></tr>`).join('')}</tbody></table>`)}
+async function screenLeader(){const dir=profile.leader_direction; if(!dir)return document.getElementById('screen').innerHTML='<h2>Мій напрямок</h2><p>Вам не призначено напрямок.</p>'; const {data,error}=await sb.from('work_days').select('*, users(full_name,callsign)').contains('directions',[dir]).order('work_date',{ascending:false}).limit(200); document.getElementById('screen').innerHTML=`<h2>Звіти по напрямку: ${dir}</h2>`+(error?error.message:tableDays(data||[],true))}
+async function screenLocks(){document.getElementById('screen').innerHTML=`<h2>Закриття місяця</h2><p class="muted">У цій збірці екран підготовлено. Логіку блокування редагування додамо наступним кроком.</p>`}
 init();
 </script>
-<script>if ("serviceWorker" in navigator) { window.addEventListener("load", () => navigator.serviceWorker.register("/service-worker.js")); }</script>
 </body>
 </html>
