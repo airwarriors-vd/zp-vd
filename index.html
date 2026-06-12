@@ -112,7 +112,70 @@ async function loadAdjustments(){
 }
 async function fillAdjustmentUsers(){const {data,error}=await sb.from('users').select('id,full_name,callsign,status').order('full_name'); if(error)return msg(error.message); a_user.innerHTML=(data||[]).filter(u=>u.status!=='dismissed').map(u=>`<option value="${u.id}">${u.full_name} ${u.callsign?'('+u.callsign+')':''}</option>`).join('')}
 function adjustmentMonth(){return (document.getElementById('a_month')?.value||window.currentAdjustmentMonth||ym().slice(0,7))+'-01'}
-async function addAdjustment(){const rec={user_id:a_user.value,adjustment_month:adjustmentMonth(),type:a_type.value,amount:+a_amount.value||0,title:a_comment.value||(a_type.value==='bonus'?'Премія':'Штраф'),comment:a_comment.value||'',created_by:profile.id}; if(!rec.user_id)return msg('Оберіть працівника'); if(rec.amount<=0)return msg('Вкажіть суму більше 0'); const {error}=await sb.from('adjustments').insert(rec); if(error)return msg(error.message); msg('Коригування додано'); a_amount.value=0; a_comment.value=''; loadAdjustments()}
+async function screenAdjustments(){
+  const { data: users, error } = await sb
+    .from('users')
+    .select('id, full_name, callsign')
+    .order('full_name');
+
+  if(error){
+    document.getElementById('screen').innerHTML = error.message;
+    return;
+  }
+
+  const month = ym();
+
+  document.getElementById('screen').innerHTML = `
+    <h2>Коригування</h2>
+
+    <div class="row">
+      <div class="col-3">
+        <label>Місяць</label>
+        <input id="adj_month" type="month" value="${month.slice(0,7)}" onchange="loadAdjustments()">
+      </div>
+
+      <div class="col-3">
+        <label>Працівник</label>
+        <select id="adj_user">
+          ${(users || []).map(u => `
+            <option value="${u.id}">
+              ${u.full_name} ${u.callsign ? '(' + u.callsign + ')' : ''}
+            </option>
+          `).join('')}
+        </select>
+      </div>
+
+      <div class="col-2">
+        <label>Тип</label>
+        <select id="adj_type">
+          <option value="bonus">Премія</option>
+          <option value="fine">Штраф</option>
+        </select>
+      </div>
+
+      <div class="col-2">
+        <label>Сума</label>
+        <input id="adj_amount" type="number" value="0">
+      </div>
+
+      <div class="col-12">
+        <label>Коментар</label>
+        <textarea id="adj_comment"></textarea>
+      </div>
+
+      <div class="col-12">
+        <button onclick="addAdjustment()">Додати коригування</button>
+      </div>
+    </div>
+
+    <hr>
+
+    <h3>Коригування за місяць</h3>
+    <div id="adj_list">Завантаження...</div>
+  `;
+
+  loadAdjustments();
+}
 async function loadAdjustments(){const month=adjustmentMonth(); const {data,error}=await sb.from('adjustments').select('*, users(full_name,callsign)').eq('adjustment_month',month).order('created_at',{ascending:false}); if(error)return adj_list.innerHTML=error.message; if(!data||!data.length)return adj_list.innerHTML='<p class="muted">Коригувань за цей місяць немає.</p>'; adj_list.innerHTML=`<table><thead><tr><th>Працівник</th><th>Тип</th><th>Сума</th><th>Коментар</th><th>Дата</th><th></th></tr></thead><tbody>${data.map(a=>`<tr><td>${a.users?.full_name||''} ${a.users?.callsign?'('+a.users.callsign+')':''}</td><td>${a.type==='bonus'?'<span class="pill green">Премія</span>':'<span class="pill red">Штраф</span>'}</td><td>${fmt(a.amount)}</td><td>${a.comment||a.title||''}</td><td>${a.created_at?new Date(a.created_at).toLocaleString('uk-UA'):''}</td><td><button class="danger" onclick="deleteAdjustment('${a.id}')">Видалити</button></td></tr>`).join('')}</tbody></table>`}
 async function deleteAdjustment(id){if(!confirm('Видалити це коригування?'))return; const {error}=await sb.from('adjustments').delete().eq('id',id); if(error)return msg(error.message); msg('Видалено'); loadAdjustments()}
 async function exportSalaryExcel(){const {data,error}=await sb.from('salary_summary').select('*').order('salary_month',{ascending:false}); if(error)return msg(error.message); if(!data||!data.length)return msg('Немає даних для експорту'); const rows=[['Місяць','ПІБ','Позивний','Днів','Ставка/день','Зарплата','Пальне','Амортизація','Проживання','Утримання','Коригування','До виплати'],...data.map(r=>[r.salary_month,r.full_name,r.callsign||'',r.work_days_count||0,r.daily_rate||0,r.base_salary||0,r.fuel_total||0,r.amortization_total||0,r.accommodation_total||0,r.employee_deduction||0,r.adjustments_total||0,r.total_to_pay||0])]; const csv=rows.map(row=>row.map(cell=>`"${String(cell).replace(/"/g,'""')}"`).join(';')).join('\n'); const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'}); const link=document.createElement('a'); link.href=URL.createObjectURL(blob); link.download='zp-vd-zvit.csv'; link.click()}
