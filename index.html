@@ -33,8 +33,25 @@ async function logout(){await sb.auth.signOut();me=null;profile=null;render()}
 function render(){if(!me)return renderLogin(); if(!profile)return renderNoProfile(); renderApp()}
 function renderLogin(){app.innerHTML=`<div class="wrap"><div class="card login"><h1 class="title">ЗП-VD</h1><p class="muted">Вхід через email та пароль. Пристрій запам’ятовується автоматично.</p><label>Email</label><input id="email" type="email" placeholder="name@example.com"><label>Пароль</label><input id="password" type="password" placeholder="Пароль"><div style="height:14px"></div><button onclick="login()">Увійти</button><p class="muted">Першого адміністратора створюємо в Supabase Auth, а профіль прив’язуємо в таблиці users.</p></div></div>`}
 function renderNoProfile(){app.innerHTML=`<div class="wrap"><div class="card login"><h1 class="title">Профіль не знайдено</h1><p>Ваш email авторизований, але профіль працівника ще не прив’язаний у таблиці <b>users</b>.</p><p class="muted">ID користувача Auth:</p><input readonly value="${me.id}"><p class="muted">Email:</p><input readonly value="${me.email||''}"><button onclick="logout()" class="secondary">Вийти</button></div></div>`}
-function nav(){const items=[['dashboard','Головна'],['days','Робочі дні']]; if(profile.role==='admin')items.push(['employees','Працівники'],['reports','Звіти'],['locks','Закриття місяця']); if(profile.role==='leader')items.push(['leader','Мій напрямок']); return `<div class="nav">${items.map(i=>`<button class="${tab===i[0]?'active':''}" onclick="tab='${i[0]}';renderApp()">${i[1]}</button>`).join('')}<button onclick="logout()" class="secondary">Вийти</button></div>`}
-async function renderApp(){app.innerHTML=`<div class="wrap"><div class="top"><div><h1 class="title">ЗП-VD</h1><div class="muted">${profile.full_name||''} ${profile.callsign?'('+profile.callsign+')':''} · ${roleName(profile.role)}</div></div></div>${nav()}<div id="screen" class="card">Завантаження...</div></div>`; if(tab==='dashboard')screenDashboard(); if(tab==='days')screenDays(); if(tab==='employees')screenEmployees(); if(tab==='reports')screenReports(); if(tab==='locks')screenLocks(); if(tab==='leader')screenLeader()}
+function nav(){
+  const items=[
+    ['dashboard','Головна'],
+    ['days','Робочі дні'],
+    ['profile','Мій профіль']
+  ];
+
+  if(profile.role==='admin')
+    items.push(['employees','Працівники'],['reports','Звіти'],['locks','Закриття місяця']);
+
+  if(profile.role==='leader')
+    items.push(['leader','Мій напрямок']);
+
+  return `<div class="nav">
+    ${items.map(i=>`<button class="${tab===i[0]?'active':''}" onclick="tab='${i[0]}';renderApp()">${i[1]}</button>`).join('')}
+    <button onclick="logout()" class="secondary">Вийти</button>
+  </div>`;
+}
+async function renderApp(){app.innerHTML=`<div class="wrap"><div class="top"><div><h1 class="title">ЗП-VD</h1><div class="muted">${profile.full_name||''} ${profile.callsign?'('+profile.callsign+')':''} · ${roleName(profile.role)}</div></div></div>${nav()}<div id="screen" class="card">Завантаження...</div></div>`; if(tab==='dashboard')screenDashboard(); if(tab==='days')screenDays(); if(tab==='profile')screenProfile(); if(tab==='employees')screenEmployees(); if(tab==='reports')screenReports(); if(tab==='locks')screenLocks(); if(tab==='leader')screenLeader()}
 function roleName(r){return r==='admin'?'Адмін':r==='leader'?'Старший групи':'Працівник'}
 async function screenDashboard(){const m=ym();let q=sb.from('salary_summary').select('*').eq('salary_month',m); if(profile.role!=='admin')q=q.eq('user_id',profile.id); const {data}=await q; const rows=data||[]; const total=rows.reduce((s,r)=>s+Number(r.total_to_pay||0),0); document.getElementById('screen').innerHTML=`<h2>Головна</h2><div class="grid-cards"><div class="stat"><span class="muted">Місяць</span><br><b>${m.slice(0,7)}</b></div><div class="stat"><span class="muted">Записів у звіті</span><br><b>${rows.length}</b></div><div class="stat"><span class="muted">До виплати</span><br><b>${fmt(total)}</b></div><div class="stat"><span class="muted">Роль</span><br><b>${roleName(profile.role)}</b></div></div>`}
 async function screenDays(){document.getElementById('screen').innerHTML=`<h2>Робочі дні</h2><div class="row"><div class="col-4"><label>Дата</label><input id="wd_date" type="date" value="${new Date().toISOString().slice(0,10)}"></div><div class="col-8"><label>Напрямки</label><div class="checkrow">${directions.map(d=>`<label><input type="checkbox" name="dir" value="${d}"> ${d}</label>`).join('')}</div></div><div class="col-4"><label>Пальне</label><input id="fuel" type="number" value="0"></div><div class="col-4"><label>Амортизація</label><input id="amort" type="number" value="0"></div><div class="col-4"><label>Проживання</label><input id="acc" type="number" value="0"></div><div class="col-12"><label>Коментар</label><textarea id="comment"></textarea></div><div class="col-12"><button onclick="saveDay()">Зберегти день</button></div></div><hr><div id="mydays">Завантаження...</div>`;loadDays()}
@@ -70,7 +87,116 @@ async function loadEmployees(){const {data,error}=await sb.from('users').select(
 async function screenReports(){const {data,error}=await sb.from('salary_summary').select('*').order('salary_month',{ascending:false}); document.getElementById('screen').innerHTML='<h2>Звіти</h2>'+ (error?error.message:`<table><thead><tr><th>Місяць</th><th>ПІБ</th><th>Днів</th><th>Зарплата</th><th>Витрати</th><th>Утримання</th><th>До виплати</th></tr></thead><tbody>${(data||[]).map(r=>`<tr><td>${r.salary_month}</td><td>${r.full_name}</td><td>${r.work_days_count}</td><td>${fmt(r.base_salary)}</td><td>${fmt((+r.fuel_total||0)+(+r.amortization_total||0)+(+r.accommodation_total||0))}</td><td>${fmt(r.employee_deduction)}</td><td><b>${fmt(r.total_to_pay)}</b></td></tr>`).join('')}</tbody></table>`)}
 async function screenLeader(){const dir=profile.leader_direction; if(!dir)return document.getElementById('screen').innerHTML='<h2>Мій напрямок</h2><p>Вам не призначено напрямок.</p>'; const {data,error}=await sb.from('work_days').select('*, users(full_name,callsign)').contains('directions',[dir]).order('work_date',{ascending:false}).limit(200); document.getElementById('screen').innerHTML=`<h2>Звіти по напрямку: ${dir}</h2>`+(error?error.message:tableDays(data||[],true))}
 async function screenLocks(){document.getElementById('screen').innerHTML=`<h2>Закриття місяця</h2><p class="muted">У цій збірці екран підготовлено. Логіку блокування редагування додамо наступним кроком.</p>`}
-init();
+function screenProfile(){
+  document.getElementById('screen').innerHTML = `
+    <h2>Мій профіль</h2>
+
+    <div class="row">
+      <div class="col-6">
+        <label>ПІБ</label>
+        <input value="${profile.full_name || ''}" disabled>
+      </div>
+
+      <div class="col-6">
+        <label>Позивний</label>
+        <input value="${profile.callsign || ''}" disabled>
+      </div>
+
+      <div class="col-4">
+        <label>Телефон</label>
+        <input id="p_phone" value="${profile.phone || ''}">
+      </div>
+
+      <div class="col-4">
+        <label>Email</label>
+        <input id="p_email" type="email" value="${profile.email || me.email || ''}">
+      </div>
+
+      <div class="col-4">
+        <label>Дата народження</label>
+        <input id="p_birth" type="date" value="${profile.birth_date || ''}">
+      </div>
+
+      <div class="col-4">
+        <label>Статус</label>
+        <input value="${profile.employment_type === 'employee' ? 'Працевлаштований' : 'Фрілансер'}" disabled>
+      </div>
+
+      <div class="col-4">
+        <label>Роль</label>
+        <input value="${roleName(profile.role)}" disabled>
+      </div>
+
+      <div class="col-4">
+        <label>Стан</label>
+        <input value="${profile.status === 'dismissed' ? 'Звільнений' : 'Активний'}" disabled>
+      </div>
+
+      <div class="col-12">
+        <button onclick="saveProfile()">Зберегти профіль</button>
+      </div>
+    </div>
+
+    <hr>
+
+    <h3>Зміна пароля</h3>
+
+    <div class="row">
+      <div class="col-6">
+        <label>Новий пароль</label>
+        <input id="new_pass" type="password">
+      </div>
+
+      <div class="col-6">
+        <label>Повторіть пароль</label>
+        <input id="new_pass2" type="password">
+      </div>
+
+      <div class="col-12">
+        <button onclick="changePassword()">Змінити пароль</button>
+      </div>
+    </div>
+  `;
+}
+
+async function saveProfile(){
+  const updates = {
+    phone: p_phone.value || null,
+    email: p_email.value || null,
+    birth_date: p_birth.value || null
+  };
+
+  const { error } = await sb
+    .from('users')
+    .update(updates)
+    .eq('id', profile.id);
+
+  if(error) return msg(error.message);
+
+  Object.assign(profile, updates);
+  msg('Профіль оновлено');
+  screenProfile();
+}
+
+async function changePassword(){
+  const p1 = new_pass.value;
+  const p2 = new_pass2.value;
+
+  if(!p1 || !p2) return msg('Введіть новий пароль двічі');
+  if(p1 !== p2) return msg('Паролі не співпадають');
+  if(p1.length < 6) return msg('Пароль має бути мінімум 6 символів');
+
+  const { error } = await sb.auth.updateUser({
+    password: p1
+  });
+
+  if(error) return msg(error.message);
+
+  msg('Пароль змінено');
+  new_pass.value = '';
+  new_pass2.value = '';
+}
+  init();
 </script>
 </body>
 </html>
