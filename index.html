@@ -55,7 +55,61 @@ async function screenEmployees(){document.getElementById('screen').innerHTML=`<h
 async function addEmployee(){const rec={full_name:e_full.value.trim(),callsign:e_call.value.trim(),email:e_email.value.trim(),password:e_password.value.trim(),phone:e_phone.value||null,birth_date:e_birth.value||null,employment_type:e_emp.value,status:e_status.value,role:e_role.value,leader_direction:e_leader.value||null,daily_rate:+e_daily.value||2500,employee_deduction:+e_deduct.value||0}; if(!rec.full_name||!rec.email||!rec.password)return msg('Заповніть ПІБ, email і пароль'); const resp=await fetch('/api/create-employee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(rec)}); const data=await resp.json().catch(()=>({error:'Невідома помилка'})); if(!resp.ok)return msg(data.error||'Помилка створення'); if(data.auth_id){await sb.from('users').update({daily_rate:rec.daily_rate,employee_deduction:rec.employee_deduction}).eq('auth_id',data.auth_id)} msg('Працівника створено автоматично: Auth + профіль users'); screenEmployees()}
 async function loadEmployees(){const {data,error}=await sb.from('users').select('*').order('full_name'); if(error)return emps.innerHTML=error.message; emps.innerHTML=`<table><thead><tr><th>ПІБ</th><th>Позивний</th><th>Email</th><th>Роль</th><th>Статус</th><th>Стан</th><th>Ставка</th><th>Утримання</th><th>Auth ID</th></tr></thead><tbody>${(data||[]).map(u=>`<tr><td>${u.full_name}</td><td>${u.callsign||''}</td><td>${u.email||''}</td><td>${roleName(u.role)}</td><td>${u.employment_type==='employee'?'Працевлаштований':'Фрілансер'}</td><td>${u.status==='active'?'Активний':'Звільнений'}</td><td>${fmt(u.daily_rate||2500)}</td><td>${fmt(u.employee_deduction||0)}</td><td class="muted small">${u.auth_id||'не прив’язано'}</td></tr>`).join('')}</tbody></table>`}
 async function screenReports(){const {data,error}=await sb.from('salary_summary').select('*').order('salary_month',{ascending:false}); document.getElementById('screen').innerHTML='<h2>Звіти</h2><button onclick="exportSalaryExcel()">Експорт Excel</button><hr>'+ (error?error.message:`<table><thead><tr><th>Місяць</th><th>ПІБ</th><th>Днів</th><th>Ставка</th><th>Зарплата</th><th>Витрати</th><th>Утримання</th><th>Коригування</th><th>До виплати</th></tr></thead><tbody>${(data||[]).map(r=>`<tr><td>${r.salary_month}</td><td>${r.full_name}</td><td>${r.work_days_count}</td><td>${fmt(r.daily_rate||2500)}</td><td>${fmt(r.base_salary)}</td><td>${fmt((+r.fuel_total||0)+(+r.amortization_total||0)+(+r.accommodation_total||0))}</td><td>${fmt(r.employee_deduction)}</td><td>${fmt(r.adjustments_total||0)}</td><td><b>${fmt(r.total_to_pay)}</b></td></tr>`).join('')}</tbody></table>`)}
-async function screenAdjustments(){const month=(window.currentAdjustmentMonth||ym().slice(0,7)); document.getElementById('screen').innerHTML=`<h2>Коригування зарплати</h2><div class="row"><div class="col-3"><label>Місяць</label><input id="a_month" type="month" value="${month}" onchange="window.currentAdjustmentMonth=this.value;loadAdjustments()"></div><div class="col-3"><label>Працівник</label><select id="a_user"></select></div><div class="col-2"><label>Тип</label><select id="a_type"><option value="bonus">Премія</option><option value="fine">Штраф</option></select></div><div class="col-2"><label>Сума</label><input id="a_amount" type="number" value="0"></div><div class="col-12"><label>Коментар</label><input id="a_comment" placeholder="Причина коригування"></div><div class="col-12"><button onclick="addAdjustment()">Додати коригування</button></div></div><hr><div id="adj_list">Завантаження...</div>`; await fillAdjustmentUsers(); loadAdjustments()}
+async function loadAdjustments(){
+  const month = adjustmentMonth();
+
+  const { data, error } = await sb
+    .from('adjustments')
+    .select('*')
+    .eq('adjustment_month', month)
+    .order('created_at', { ascending:false });
+
+  if(error) return adj_list.innerHTML = error.message;
+
+  if(!data || !data.length)
+    return adj_list.innerHTML = '<p class="muted">Коригувань за цей місяць немає.</p>';
+
+  const ids = [...new Set(data.map(a => a.user_id).filter(Boolean))];
+
+  const { data: users, error: uError } = await sb
+    .from('users')
+    .select('id, full_name, callsign')
+    .in('id', ids);
+
+  if(uError) return adj_list.innerHTML = uError.message;
+
+  const usersMap = Object.fromEntries((users || []).map(u => [u.id, u]));
+
+  adj_list.innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>Працівник</th>
+          <th>Тип</th>
+          <th>Сума</th>
+          <th>Коментар</th>
+          <th>Дата</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        ${data.map(a => {
+          const u = usersMap[a.user_id] || {};
+          return `
+            <tr>
+              <td>${u.full_name || ''} ${u.callsign ? '(' + u.callsign + ')' : ''}</td>
+              <td>${a.type === 'bonus' ? '<span class="pill green">Премія</span>' : '<span class="pill red">Штраф</span>'}</td>
+              <td>${fmt(a.amount)}</td>
+              <td>${a.comment || a.title || ''}</td>
+              <td>${a.created_at ? new Date(a.created_at).toLocaleString('uk-UA') : ''}</td>
+              <td><button class="danger" onclick="deleteAdjustment('${a.id}')">Видалити</button></td>
+            </tr>
+          `;
+        }).join('')}
+      </tbody>
+    </table>
+  `;
+}
 async function fillAdjustmentUsers(){const {data,error}=await sb.from('users').select('id,full_name,callsign,status').order('full_name'); if(error)return msg(error.message); a_user.innerHTML=(data||[]).filter(u=>u.status!=='dismissed').map(u=>`<option value="${u.id}">${u.full_name} ${u.callsign?'('+u.callsign+')':''}</option>`).join('')}
 function adjustmentMonth(){return (document.getElementById('a_month')?.value||window.currentAdjustmentMonth||ym().slice(0,7))+'-01'}
 async function addAdjustment(){const rec={user_id:a_user.value,adjustment_month:adjustmentMonth(),type:a_type.value,amount:+a_amount.value||0,title:a_comment.value||(a_type.value==='bonus'?'Премія':'Штраф'),comment:a_comment.value||'',created_by:profile.id}; if(!rec.user_id)return msg('Оберіть працівника'); if(rec.amount<=0)return msg('Вкажіть суму більше 0'); const {error}=await sb.from('adjustments').insert(rec); if(error)return msg(error.message); msg('Коригування додано'); a_amount.value=0; a_comment.value=''; loadAdjustments()}
