@@ -1,0 +1,13 @@
+{
+  "name": "zp-vd",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "vapid": "web-push generate-vapid-keys --json"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "latest",
+    "web-push": "latest"
+  }
+}
