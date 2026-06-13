@@ -1,179 +1,215 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="uk">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ЗП-VD</title>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0f172a">
-<meta name="application-name" content="ЗП-VD">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="ЗП-VD">
-<link rel="apple-touch-icon" href="icon-192.png">
-<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-:root{--bg:#f5f7fb;--card:#fff;--text:#172033;--muted:#667085;--green:#16a34a;--blue:#2563eb;--red:#dc2626;--border:#e5e7eb;--shadow:0 10px 25px rgba(15,23,42,.08)}
-*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text)}.wrap{max-width:1220px;margin:auto;padding:22px}.card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:18px;box-shadow:var(--shadow);margin-bottom:16px}.login{max-width:430px;margin:8vh auto}.title{font-size:28px;margin:0 0 6px}.muted{color:var(--muted);font-size:13px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.nav{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.nav button,.btn,button{border:0;border-radius:12px;padding:11px 14px;cursor:pointer;font-weight:700;background:#e2e8f0;color:#0f172a}.nav button.active,.btn.primary,button.primary{background:var(--green);color:#fff}.secondary{background:#e2e8f0!important;color:#0f172a!important}.danger{background:var(--red)!important;color:#fff!important}.blue{background:var(--blue)!important;color:#fff!important}label{display:block;font-size:13px;color:#344054;margin:9px 0 5px}input,select,textarea{width:100%;padding:11px;border:1px solid var(--border);border-radius:12px;background:#fff;font-size:14px}textarea{min-height:80px}.row{display:grid;grid-template-columns:repeat(12,1fr);gap:12px}.col-2{grid-column:span 2}.col-3{grid-column:span 3}.col-4{grid-column:span 4}.col-6{grid-column:span 6}.col-8{grid-column:span 8}.col-12{grid-column:span 12}.grid-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.stat{border:1px solid var(--border);border-radius:16px;padding:15px;background:#fff}.stat b{font-size:24px}.checkrow{display:flex;gap:8px;flex-wrap:wrap}.checkrow label{border:1px solid var(--border);border-radius:12px;padding:8px 10px;margin:0;background:#fff}.checkrow input{width:auto}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px solid var(--border);text-align:left;font-size:14px;vertical-align:top}.pill{display:inline-flex;margin:2px;padding:4px 9px;border-radius:999px;font-size:12px;background:#e2e8f0}.green{background:#dcfce7;color:#166534}.red{background:#fee2e2;color:#991b1b}.bluepill{background:#dbeafe;color:#1d4ed8}.audit-details{white-space:pre-wrap;margin:0;font-family:inherit;font-size:13px;line-height:1.35}.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#0f172a;color:#fff;padding:12px 16px;border-radius:14px;box-shadow:var(--shadow);z-index:10;display:none}@media(max-width:800px){.row,.grid-cards{grid-template-columns:1fr}.col-2,.col-3,.col-4,.col-6,.col-8,.col-12{grid-column:span 1}.wrap{padding:12px}.nav button{flex:1 1 auto}}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Зарплатний кабінет</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{--bg:#f5f7f5;--card:#fff;--text:#111827;--muted:#667085;--line:#e5e7eb;--green:#20964b;--green2:#e9f8ee;--red:#ef4444;--orange:#f59e0b;--blue:#2563eb;--shadow:0 12px 35px rgba(16,24,40,.08);--radius:22px}*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;background:var(--bg);color:var(--text)}.app{display:grid;grid-template-columns:280px 1fr;min-height:100vh}.side{background:#fff;padding:24px;border-right:1px solid var(--line);position:sticky;top:0;height:100vh}.logo{font-size:22px;font-weight:900;margin-bottom:22px}.pill{background:var(--green2);color:var(--green);padding:8px 12px;border-radius:999px;font-weight:800;font-size:13px;display:inline-block}.nav button{width:100%;border:0;background:transparent;text-align:left;padding:14px 12px;border-radius:14px;font-size:15px;cursor:pointer;margin:4px 0}.nav button.active,.nav button:hover{background:var(--green2);color:var(--green);font-weight:800}.main{padding:28px}.top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:20px}.title h1{margin:0;font-size:30px}.title p{margin:6px 0 0;color:var(--muted)}.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}.stat b{font-size:25px}.stat span{display:block;color:var(--muted);font-size:13px;margin-top:6px}.layout{display:grid;grid-template-columns:1.25fr .75fr;gap:18px}.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}.dayName{color:var(--muted);font-size:13px;text-align:center;font-weight:800}.day{min-height:82px;border:1px solid var(--line);border-radius:16px;background:#fff;padding:8px;cursor:pointer}.day:hover{border-color:var(--green)}.day.work{background:var(--green2);border-color:#9ee2b2}.num{font-weight:900}.tag{font-size:11px;margin-top:8px;background:#fff;border-radius:999px;padding:4px 7px;display:inline-block;color:var(--green);font-weight:800}.form{display:grid;gap:11px}label{font-size:13px;color:var(--muted);font-weight:700}input,select,textarea{width:100%;border:1px solid var(--line);border-radius:14px;padding:12px 13px;font:inherit;background:#fff}textarea{min-height:80px;resize:vertical}.btn{border:0;border-radius:15px;padding:13px 16px;background:var(--green);color:white;font-weight:900;cursor:pointer}.btn.secondary{background:#111827}.btn.ghost{background:#eef2f7;color:#111827}.btn.red{background:var(--red)}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.table{width:100%;border-collapse:collapse}.table th,.table td{padding:12px;border-bottom:1px solid var(--line);text-align:left;font-size:14px}.table th{color:var(--muted);font-size:12px}.hidden{display:none!important}.notice{padding:12px;border-radius:14px;background:#fff8e6;color:#92400e;margin-bottom:14px}.success{background:var(--green2);color:var(--green)}.danger{background:#fee2e2;color:#991b1b}.monthLine{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}@media(max-width:900px){.app{grid-template-columns:1fr}.side{position:relative;height:auto}.grid{grid-template-columns:1fr 1fr}.layout{grid-template-columns:1fr}.main{padding:16px}.calendar{gap:5px}.day{min-height:68px;padding:6px}.top{display:block}.side .nav{display:grid;grid-template-columns:1fr 1fr;gap:4px}}
+  </style>
 </head>
-<body><div id="app"></div><div id="toast" class="toast"></div>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="logo">💼 ЗП Кабінет</div>
+    <div class="pill">2500 грн / день</div>
+    <p style="color:var(--muted);font-size:14px;line-height:1.45">Працевлаштований: мінус 48000 грн щомісяця. Фрілансер: без віднімання.</p>
+    <div class="nav">
+      <button class="active" onclick="showTab('worker',this)">👤 Кабінет</button>
+      <button onclick="showTab('admin',this)">🛡️ Адмінка</button>
+      <button onclick="showTab('settings',this)">⚙️ Налаштування</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="top">
+      <div class="title"><h1>Зарплатний кабінет</h1><p id="subtitle">Перший повноцінний прототип із Supabase</p></div>
+      <button class="btn secondary" onclick="reloadAll()">Оновити</button>
+    </div>
+    <div id="message"></div>
+
+    <section id="settings" class="hidden">
+      <div class="card">
+        <h2>Підключення Supabase</h2>
+        <p style="color:var(--muted)">Встав Project URL та anon public key з Supabase → Project Settings → API.</p>
+        <div class="form">
+          <label>Supabase URL</label><input id="sbUrl" placeholder="https://xxxxx.supabase.co">
+          <label>Supabase anon key</label><input id="sbKey" placeholder="eyJ...">
+          <button class="btn" onclick="saveConfig()">Зберегти підключення</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="worker">
+      <div class="card" style="margin-bottom:18px">
+        <h2>Вхід працівника</h2>
+        <div class="row">
+          <div><label>Телефон</label><input id="loginPhone" placeholder="+380... або 0..."></div>
+          <div><label>ПІБ</label><input id="loginName" placeholder="Імʼя працівника"></div>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <div><label>Тип</label><select id="loginType"><option value="freelancer">Фрілансер</option><option value="employee">Працевлаштований</option></select></div>
+          <div style="align-self:end"><button class="btn" onclick="loginOrCreate()">Увійти / створити</button></div>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="card stat"><b id="daysCount">0</b><span>Робочих днів</span></div>
+        <div class="card stat"><b id="salaryDays">0 грн</b><span>Дні × 2500</span></div>
+        <div class="card stat"><b id="expensesTotal">0 грн</b><span>Витрати</span></div>
+        <div class="card stat"><b id="payTotal">0 грн</b><span>До виплати</span></div>
+      </div>
+
+      <div class="layout">
+        <div class="card">
+          <div class="monthLine"><button class="btn ghost" onclick="changeMonth(-1)">←</button><h2 id="monthTitle" style="margin:0"></h2><button class="btn ghost" onclick="changeMonth(1)">→</button></div>
+          <div class="calendar" id="calendar"></div>
+        </div>
+        <div class="card">
+          <h2>Додати / змінити день</h2>
+          <div class="form">
+            <label>Дата</label><input id="workDate" type="date">
+            <label>Напрямок</label><select id="direction"><option>Софт</option><option>FPV</option><option>Класика</option><option>БЗВП</option><option>Online</option></select>
+            <div class="row"><div><label>Пальне</label><input id="fuel" type="number" value="0"></div><div><label>Амортизація</label><input id="amortization" type="number" value="0"></div></div>
+            <label>Проживання</label><input id="accommodation" type="number" value="0">
+            <label>Коментар</label><textarea id="comment"></textarea>
+            <button class="btn" onclick="saveWorkDay()">Зберегти день</button>
+            <button class="btn red" onclick="deleteWorkDay()">Видалити цей день</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="admin" class="hidden">
+      <div class="card" style="margin-bottom:18px">
+        <h2>Адмінка: працівники та підсумки</h2>
+        <div class="monthLine"><input id="adminMonth" type="month"><button class="btn" onclick="loadAdmin()">Показати</button></div>
+        <table class="table"><thead><tr><th>Працівник</th><th>Тип</th><th>Днів</th><th>Витрати</th><th>Мінус</th><th>До виплати</th></tr></thead><tbody id="adminRows"></tbody></table>
+      </div>
+
+      <div class="card" style="margin-bottom:18px">
+        <h2>Редагування працівника</h2>
+        <p style="color:var(--muted)">Оберіть працівника зі списку нижче, змініть дані й натисніть “Зберегти зміни”.</p>
+        <input id="admEmpId" type="hidden">
+        <div class="row">
+          <div><label>ПІБ</label><input id="admFullName" placeholder="ПІБ працівника"></div>
+          <div><label>Телефон</label><input id="admPhone" placeholder="+380..."></div>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <div><label>Тип</label><select id="admType"><option value="freelancer">Фрілансер</option><option value="employee">Працевлаштований</option></select></div>
+          <div><label>Стан</label><select id="admActive"><option value="true">Активний</option><option value="false">Звільнений / неактивний</option></select></div>
+        </div>
+        <div class="row" style="margin-top:14px">
+          <button class="btn" onclick="saveAdminEmployee()">Зберегти зміни</button>
+          <button class="btn ghost" onclick="clearAdminEmployeeForm()">Очистити</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Працівники в базі</h2>
+        <table class="table">
+          <thead><tr><th>ПІБ</th><th>Телефон</th><th>Тип</th><th>Стан</th><th></th></tr></thead>
+          <tbody id="adminEmployeesRows"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
 <script>
-const SUPABASE_URL='https://gahbfqpkgnbezkfqkziy.supabase.co';
-const SUPABASE_KEY='sb_publishable_xRk6B66TkytVRztLnOq6cQ_Zzn4awMW';
-const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-const directions=['Софт','FPV','Класика','БЗВП','Online'];
-let me=null, profile=null, tab='dashboard';
-function fmt(n){return (Number(n)||0).toLocaleString('uk-UA')+' грн'}
-function esc(s){return String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
-function msg(t){const el=document.getElementById('toast');el.textContent=t;el.style.display='block';setTimeout(()=>el.style.display='none',2800)}
-function ym(){return new Date().toISOString().slice(0,7)+'-01'}
-function monthEnd(m){const [y,mo]=m.slice(0,7).split('-').map(Number);return new Date(y,mo,0).toISOString().slice(0,10)}
-function roleName(r){return r==='admin'?'Адмін':r==='leader'?'Старший групи':'Працівник'}
-function screenEl(){return document.getElementById('screen')}
-async function init(){const {data:{session}}=await sb.auth.getSession(); if(!session){renderLogin();return} me=session.user; await loadProfile(); if(!profile){renderNoProfile();return} renderApp()}
-function renderLogin(){app.innerHTML=`<div class="wrap"><div class="card login"><h1 class="title">ЗП-VD</h1><p class="muted">Вхід через email та пароль. Пристрій запам’ятовується автоматично.</p><label>Email</label><input id="email" type="email"><label>Пароль</label><input id="password" type="password"><div style="height:14px"></div><button class="primary" onclick="login()">Увійти</button></div></div>`}
-async function login(){const {error}=await sb.auth.signInWithPassword({email:email.value.trim(),password:password.value}); if(error)return msg(error.message); location.reload()}
-async function logout(){await sb.auth.signOut(); location.reload()}
-async function loadProfile(){let q=sb.from('users').select('*').eq('auth_id',me.id).maybeSingle(); let r=await q; if(!r.data){r=await sb.from('users').select('*').eq('auth_user_id',me.id).maybeSingle()} if(!r.data){r=await sb.from('users').select('*').eq('id',me.id).maybeSingle()} profile=r.data||null}
-function renderNoProfile(){app.innerHTML=`<div class="wrap"><div class="card login"><h1 class="title">Профіль не знайдено</h1><p>Ваш email авторизований, але профіль ще не прив’язаний у таблиці <b>users</b>.</p><label>Auth ID</label><input readonly value="${me.id}"><label>Email</label><input readonly value="${me.email||''}"><button class="secondary" onclick="logout()">Вийти</button></div></div>`}
-function nav(){const items=[['dashboard','Головна'],['days','Робочі дні'],['salary','Мій розрахунок'],['profile','Мій профіль']]; if(profile.role==='admin')items.push(['employees','Працівники'],['reports','Звіти'],['adjustments','Коригування'],['locks','Закриття місяця'],['audit','Журнал']); if(profile.role==='leader')items.push(['leader','Мій напрямок']); return `<div class="nav">${items.map(i=>`<button class="${tab===i[0]?'active':''}" onclick="tab='${i[0]}';renderApp()">${i[1]}</button>`).join('')}<button class="secondary" onclick="logout()">Вийти</button></div>`}
-async function renderApp(){app.innerHTML=`<div class="wrap"><div class="top"><div><h1 class="title">ЗП-VD</h1><div class="muted">${esc(profile.full_name)} ${profile.callsign?'('+esc(profile.callsign)+')':''} · ${roleName(profile.role)}</div></div></div>${nav()}<div id="screen" class="card">Завантаження...</div></div>`; if(tab==='dashboard')screenDashboard(); if(tab==='days')screenDays(); if(tab==='salary')screenSalary(); if(tab==='profile')screenProfile(); if(tab==='employees')screenEmployees(); if(tab==='reports')screenReports(); if(tab==='adjustments')screenAdjustments(); if(tab==='locks')screenLocks(); if(tab==='leader')screenLeader(); if(tab==='audit')screenAudit()}
-async function screenDashboard(){
-  const m=ym();
-  const monthStart=m;
-  const d=new Date(m+'T00:00:00');
-  d.setMonth(d.getMonth()+1);
-  const nextMonth=d.toISOString().slice(0,10);
+let supabaseClient=null,currentUser=null,currentMonth=new Date(),workDays=[];
+const DAILY_RATE=2500, EMPLOYEE_DEDUCTION=48000;
+const fmt=n=>Number(n||0).toLocaleString('uk-UA')+' грн';
+const msg=(t,c='notice')=>document.getElementById('message').innerHTML=`<div class="notice ${c}">${t}</div>`;
+function normalizePhone(p){p=(p||'').replace(/\D/g,''); if(p.startsWith('0')) p='38'+p; if(!p.startsWith('380')) p='380'+p; return '+'+p;}
+function initSupabase(){const url=localStorage.getItem('sbUrl'),key=localStorage.getItem('sbKey');document.getElementById('sbUrl').value=url||'';document.getElementById('sbKey').value=key||''; if(url&&key){supabaseClient=supabase.createClient(url,key);return true} return false}
+function saveConfig(){localStorage.setItem('sbUrl',document.getElementById('sbUrl').value.trim());localStorage.setItem('sbKey',document.getElementById('sbKey').value.trim());initSupabase();msg('Підключення збережено. Тепер можна зайти працівником.','success')}
+function showTab(id,btn){document.querySelectorAll('main section').forEach(s=>s.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));btn.classList.add('active'); if(id==='admin')loadAdmin();}
+async function loginOrCreate(){if(!initSupabase())return msg('Спочатку заповни Supabase URL і anon key у Налаштуваннях.','danger');const phone=normalizePhone(loginPhone.value), name=loginName.value.trim()||'Без імені', employment_type=loginType.value;let {data,error}=await supabaseClient.from('employees').select('*').eq('phone',phone).maybeSingle();if(error)return msg(error.message,'danger');if(!data){let res=await supabaseClient.from('employees').insert({phone,full_name:name,employment_type}).select().single();if(res.error)return msg(res.error.message,'danger');data=res.data}else{await supabaseClient.from('employees').update({full_name:name,employment_type}).eq('id',data.id);data={...data,full_name:name,employment_type}}currentUser=data;msg(`Вхід виконано: ${data.full_name}. Тип: ${data.employment_type==='employee'?'Працевлаштований':'Фрілансер'}`,'success');await loadWorkDays()}
+function monthRange(){let y=currentMonth.getFullYear(),m=currentMonth.getMonth();return [new Date(y,m,1),new Date(y,m+1,0)]}
+async function loadWorkDays(){if(!currentUser)return renderCalendar();let [a,b]=monthRange();let from=a.toISOString().slice(0,10),to=b.toISOString().slice(0,10);let {data,error}=await supabaseClient.from('work_days').select('*').eq('employee_id',currentUser.id).gte('work_date',from).lte('work_date',to).order('work_date');if(error)return msg(error.message,'danger');workDays=data||[];renderCalendar();renderStats()}
+function renderCalendar(){const names=['Пн','Вт','Ср','Чт','Пт','Сб','Нд'];calendar.innerHTML=names.map(n=>`<div class="dayName">${n}</div>`).join('');let [start,end]=monthRange();monthTitle.textContent=start.toLocaleDateString('uk-UA',{month:'long',year:'numeric'});let offset=(start.getDay()+6)%7;for(let i=0;i<offset;i++)calendar.innerHTML+='<div></div>';for(let d=1;d<=end.getDate();d++){let date=new Date(start.getFullYear(),start.getMonth(),d),iso=date.toISOString().slice(0,10),w=workDays.find(x=>x.work_date===iso);calendar.innerHTML+=`<div class="day ${w?'work':''}" onclick="pickDate('${iso}')"><div class="num">${d}</div>${w?`<div class="tag">${w.direction}</div><div style="font-size:12px;margin-top:5px;color:#667085">${fmt((+w.fuel)+(+w.amortization)+(+w.accommodation))}</div>`:''}</div>`}}
+function renderStats(){let days=workDays.filter(w=>w.status!=='rejected').length;let salary=days*DAILY_RATE;let expenses=workDays.reduce((s,w)=>s+(+w.fuel||0)+(+w.amortization||0)+(+w.accommodation||0),0);let deduction=currentUser?.employment_type==='employee'?EMPLOYEE_DEDUCTION:0;daysCount.textContent=days;salaryDays.textContent=fmt(salary);expensesTotal.textContent=fmt(expenses);payTotal.textContent=fmt(salary+expenses-deduction)}
+function pickDate(iso){workDate.value=iso;let w=workDays.find(x=>x.work_date===iso);direction.value=w?.direction||'Софт';fuel.value=w?.fuel||0;amortization.value=w?.amortization||0;accommodation.value=w?.accommodation||0;comment.value=w?.comment||''}
+async function saveWorkDay(){if(!currentUser)return msg('Спочатку увійди працівником.','danger');let payload={employee_id:currentUser.id,work_date:workDate.value,direction:direction.value,fuel:+fuel.value||0,amortization:+amortization.value||0,accommodation:+accommodation.value||0,comment:comment.value,status:'approved'};if(!payload.work_date)return msg('Вибери дату.','danger');let old=workDays.find(w=>w.work_date===payload.work_date);let res=old?await supabaseClient.from('work_days').update(payload).eq('id',old.id):await supabaseClient.from('work_days').insert(payload);if(res.error)return msg(res.error.message,'danger');msg('День збережено.','success');await loadWorkDays()}
+async function deleteWorkDay(){let old=workDays.find(w=>w.work_date===workDate.value);if(!old)return msg('На цю дату немає запису.','danger');let {error}=await supabaseClient.from('work_days').delete().eq('id',old.id);if(error)return msg(error.message,'danger');msg('День видалено.','success');await loadWorkDays()}
+function changeMonth(n){currentMonth=new Date(currentMonth.getFullYear(),currentMonth.getMonth()+n,1);loadWorkDays()}
+async function loadAdmin(){
+  if(!initSupabase())return;
+  let m=adminMonth.value||new Date().toISOString().slice(0,7);
+  adminMonth.value=m;
+  let from=m+'-01',to=new Date(+m.slice(0,4),+m.slice(5),0).toISOString().slice(0,10);
 
-  let salaryQ=sb.from('salary_summary').select('*').eq('salary_month',m);
-  if(profile.role!=='admin')salaryQ=salaryQ.eq('user_id',profile.id);
-  const {data,error}=await salaryQ;
-  const rows=data||[];
-  const total=rows.reduce((s,r)=>s+Number(r.total_to_pay||0),0);
+  let {data:emps,error:eErr}=await supabaseClient.from('employees').select('*').order('full_name');
+  if(eErr)return msg(eErr.message,'danger');
 
-  let daysQ=sb.from('work_days').select('id',{count:'exact',head:true}).gte('work_date',monthStart).lt('work_date',nextMonth);
-  if(profile.role!=='admin')daysQ=daysQ.eq('user_id',profile.id);
-  const {count:recordsCount,error:daysErr}=await daysQ;
+  let {data:days,error:dErr}=await supabaseClient.from('work_days').select('*').gte('work_date',from).lte('work_date',to);
+  if(dErr)return msg(dErr.message,'danger');
 
-  screenEl().innerHTML=`<h2>Головна</h2>${error?esc(error.message):''}${daysErr?esc(daysErr.message):''}<div class="grid-cards"><div class="stat"><span class="muted">Місяць</span><br><b>${m.slice(0,7)}</b></div><div class="stat"><span class="muted">Робочих днів / записів</span><br><b>${recordsCount||0}</b></div><div class="stat"><span class="muted">До виплати</span><br><b>${fmt(total)}</b></div><div class="stat"><span class="muted">Роль</span><br><b>${roleName(profile.role)}</b></div></div>`
+  window.adminEmployees=emps||[];
+  const activeEmps=(emps||[]).filter(e=>e.is_active!==false);
+
+  adminRows.innerHTML=activeEmps.map(e=>{
+    let list=(days||[]).filter(w=>w.employee_id===e.id&&w.status!=='rejected'),
+        cnt=list.length,
+        dayRate=Number(e.daily_rate||DAILY_RATE),
+        sal=cnt*dayRate,
+        exp=list.reduce((s,w)=>s+(+w.fuel||0)+(+w.amortization||0)+(+w.accommodation||0),0),
+        ded=e.employment_type==='employee'?Number(e.employee_deduction||EMPLOYEE_DEDUCTION):0;
+    return `<tr><td>${e.full_name}<br><small>${e.phone}</small></td><td>${e.employment_type==='employee'?'Працевлаштований':'Фрілансер'}</td><td>${cnt}</td><td>${fmt(exp)}</td><td>${fmt(ded)}</td><td><b>${fmt(sal+exp-ded)}</b></td></tr>`
+  }).join('')||'<tr><td colspan="6">Немає активних працівників</td></tr>';
+
+  renderAdminEmployees();
 }
-async function isMonthLocked(userId,dateStr){const month=dateStr.slice(0,7)+'-01'; const {data,error}=await sb.from('month_locks').select('id').eq('user_id',userId).eq('lock_month',month).maybeSingle(); if(error){msg(error.message);return true} return !!data}
-async function screenDays(){screenEl().innerHTML=`<h2>Робочі дні</h2><div class="row"><div class="col-4"><label>Дата</label><input id="wd_date" type="date" value="${new Date().toISOString().slice(0,10)}"></div><div class="col-8"><label>Напрямки</label><div class="checkrow">${directions.map(d=>`<label><input type="checkbox" name="dir" value="${d}"> ${d}</label>`).join('')}</div></div><div class="col-4"><label>Пальне</label><input id="fuel" type="number" value="0"></div><div class="col-4"><label>Амортизація</label><input id="amort" type="number" value="0"></div><div class="col-4"><label>Проживання</label><input id="acc" type="number" value="0"></div><div class="col-12"><label>Коментар</label><textarea id="comment"></textarea></div><div class="col-12"><button class="primary" onclick="saveDay()">Зберегти день</button></div></div><hr><div id="mydays">Завантаження...</div>`;loadDays()}
-async function saveDay(){const ds=[...document.querySelectorAll('input[name=dir]:checked')].map(x=>x.value); if(!ds.length)return msg('Оберіть хоча б один напрямок'); if(await isMonthLocked(profile.id,wd_date.value))return msg('Цей місяць закрито. Редагування недоступне.'); const rec={user_id:profile.id,work_date:wd_date.value,directions:ds,direction:ds[0],fuel:+fuel.value||0,amortization:+amort.value||0,accommodation:+acc.value||0,comment:comment.value||'',submitted_at:new Date().toISOString(),updated_at:new Date().toISOString()}; const {data:oldRows}=await sb.from('work_days').select('*').eq('user_id',profile.id).eq('work_date',rec.work_date).limit(1); const old=oldRows&&oldRows[0]; const {data,error}=await sb.from('work_days').upsert(rec,{onConflict:'user_id,work_date'}).select().single(); if(error)return msg(error.message); await logAction(old?'updated':'created',old?{old,new:data}:data); msg('Збережено'); screenDays()}
-async function loadDays(){const {data,error}=await sb.from('work_days').select('*').eq('user_id',profile.id).order('work_date',{ascending:false}).limit(80); if(error)return mydays.innerHTML=esc(error.message); mydays.innerHTML=tableDays(data||[],false)}
-function tableDays(rows,showUser){if(!rows.length)return '<p class="muted">Записів немає</p>'; return `<div class="table-wrap"><table><thead><tr>${showUser?'<th>Працівник</th>':''}<th>Дата</th><th>Напрямки</th><th>Витрати</th><th>Подано</th><th>Змінено</th></tr></thead><tbody>${rows.map(r=>`<tr>${showUser?`<td>${esc(r.user_name||'')}</td>`:''}<td>${r.work_date}</td><td>${(r.directions||[r.direction]).filter(Boolean).map(d=>`<span class="pill bluepill">${esc(d)}</span>`).join('')}</td><td>${fmt((+r.fuel||0)+(+r.amortization||0)+(+r.accommodation||0))}</td><td>${r.created_at?new Date(r.created_at).toLocaleString('uk-UA'):''}</td><td>${r.updated_at?new Date(r.updated_at).toLocaleString('uk-UA'):''}</td></tr>`).join('')}</tbody></table></div>`}
-async function screenSalary(){
-  const month = window.currentSalaryMonth || ym().slice(0,7);
-  screenEl().innerHTML=`<h2>Мій розрахунок</h2><div class="monthLine"><label style="margin:0">Місяць</label><input id="salary_month" type="month" value="${month}" onchange="window.currentSalaryMonth=this.value;screenSalary()"><button onclick="window.print()">Друк / PDF</button></div><div id="salary_area">Завантаження...</div>`;
-  const targetMonth=month+'-01';
-  const q=profile.role==='admin'
-    ? sb.from('salary_summary').select('*').eq('salary_month',targetMonth).order('full_name')
-    : sb.from('salary_summary').select('*').eq('salary_month',targetMonth).eq('user_id',profile.id);
-  const {data,error}=await q;
-  const area=document.getElementById('salary_area');
-  if(error)return area.innerHTML=esc(error.message);
-  const rows=data||[];
-  if(!rows.length)return area.innerHTML='<p class="muted">За вибраний місяць ще немає розрахунку.</p>';
-  if(profile.role==='admin'){
-    const total=rows.reduce((s,r)=>s+Number(r.total_to_pay||0),0);
-    area.innerHTML=`<div class="grid-cards"><div class="stat"><span>Працівників</span><br><b>${rows.length}</b></div><div class="stat"><span>До виплати</span><br><b>${fmt(total)}</b></div></div><div class="table-wrap"><table><thead><tr><th>ПІБ</th><th>Днів</th><th>Ставка</th><th>Зарплата</th><th>Витрати</th><th>Коригування</th><th>Утримання</th><th>До виплати</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.full_name||'')}</td><td>${r.work_days_count||0}</td><td>${fmt(r.daily_rate||0)}</td><td>${fmt(r.base_salary||0)}</td><td>${fmt((+r.fuel_total||0)+(+r.amortization_total||0)+(+r.accommodation_total||0))}</td><td>${fmt(r.adjustments_total||0)}</td><td>${fmt(r.employee_deduction||0)}</td><td><b>${fmt(r.total_to_pay||0)}</b></td></tr>`).join('')}</tbody></table></div>`;
-    return;
-  }
-  const r=rows[0];
-  area.innerHTML=`<div class="grid-cards"><div class="stat"><span>Робочих днів</span><br><b>${r.work_days_count||0}</b></div><div class="stat"><span>Ставка/день</span><br><b>${fmt(r.daily_rate||0)}</b></div><div class="stat"><span>Основна зарплата</span><br><b>${fmt(r.base_salary||0)}</b></div><div class="stat"><span>До виплати</span><br><b>${fmt(r.total_to_pay||0)}</b></div></div><div class="table-wrap"><table><tbody><tr><th>Пальне</th><td>${fmt(r.fuel_total||0)}</td></tr><tr><th>Амортизація</th><td>${fmt(r.amortization_total||0)}</td></tr><tr><th>Проживання</th><td>${fmt(r.accommodation_total||0)}</td></tr><tr><th>Премії / штрафи</th><td>${fmt(r.adjustments_total||0)}</td></tr><tr><th>Утримання</th><td>${fmt(r.employee_deduction||0)}</td></tr><tr><th>Фінально до виплати</th><td><b>${fmt(r.total_to_pay||0)}</b></td></tr></tbody></table></div>`;
+
+function renderAdminEmployees(){
+  const tbody=document.getElementById('adminEmployeesRows');
+  if(!tbody)return;
+  const rows=window.adminEmployees||[];
+  tbody.innerHTML=rows.map(e=>`
+    <tr>
+      <td>${e.full_name||''}</td>
+      <td>${e.phone||''}</td>
+      <td>${e.employment_type==='employee'?'Працевлаштований':'Фрілансер'}</td>
+      <td>${e.is_active===false?'<span class="pill" style="background:#fee2e2;color:#991b1b">Неактивний</span>':'<span class="pill">Активний</span>'}</td>
+      <td><button class="btn ghost" onclick="editAdminEmployee('${e.id}')">Редагувати</button></td>
+    </tr>
+  `).join('')||'<tr><td colspan="5">Працівників немає</td></tr>';
 }
-function screenProfile(){screenEl().innerHTML=`<h2>Мій профіль</h2><div class="row"><div class="col-6"><label>ПІБ</label><input value="${esc(profile.full_name)}" disabled></div><div class="col-6"><label>Позивний</label><input value="${esc(profile.callsign||'')}" disabled></div><div class="col-4"><label>Телефон</label><input id="p_phone" value="${esc(profile.phone||'')}"></div><div class="col-4"><label>Email</label><input id="p_email" type="email" value="${esc(profile.email||me.email||'')}"></div><div class="col-4"><label>Дата народження</label><input id="p_birth" type="date" value="${profile.birth_date||''}"></div><div class="col-4"><label>Статус</label><input value="${profile.employment_type==='employee'?'Працевлаштований':'Фрілансер'}" disabled></div><div class="col-4"><label>Роль</label><input value="${roleName(profile.role)}" disabled></div><div class="col-4"><label>Стан</label><input value="${profile.status==='dismissed'?'Звільнений':'Активний'}" disabled></div><div class="col-12"><button class="primary" onclick="saveProfile()">Зберегти профіль</button></div></div><hr><h3>Зміна пароля</h3><div class="row"><div class="col-6"><label>Новий пароль</label><input id="new_pass" type="password"></div><div class="col-6"><label>Повторіть пароль</label><input id="new_pass2" type="password"></div><div class="col-12"><button onclick="changePassword()">Змінити пароль</button></div></div>`}
-async function saveProfile(){const updates={phone:p_phone.value||null,email:p_email.value||null,birth_date:p_birth.value||null}; const {error}=await sb.from('users').update(updates).eq('id',profile.id); if(error)return msg(error.message); Object.assign(profile,updates); await logAction('Оновлено профіль',updates); msg('Профіль оновлено')}
-async function changePassword(){if(!new_pass.value||new_pass.value!==new_pass2.value)return msg('Паролі не співпадають'); if(new_pass.value.length<6)return msg('Мінімум 6 символів'); const {error}=await sb.auth.updateUser({password:new_pass.value}); if(error)return msg(error.message); await logAction('Змінено пароль',''); msg('Пароль змінено'); new_pass.value='';new_pass2.value=''}
-async function screenEmployees(){screenEl().innerHTML=`<h2>Працівники</h2><div class="row"><div class="col-3"><label>ПІБ</label><input id="e_full"></div><div class="col-3"><label>Позивний</label><input id="e_call"></div><div class="col-3"><label>Email</label><input id="e_email" type="email"></div><div class="col-3"><label>Пароль для входу</label><input id="e_password" type="text" placeholder="Напр. vd2026"></div><div class="col-3"><label>Телефон</label><input id="e_phone"></div><div class="col-3"><label>Дата народження</label><input id="e_birth" type="date"></div><div class="col-3"><label>Статус</label><select id="e_emp"><option value="employee">Працевлаштований</option><option value="freelancer">Фрілансер</option></select></div><div class="col-3"><label>Стан</label><select id="e_status"><option value="active">Активний</option><option value="dismissed">Звільнений</option></select></div><div class="col-3"><label>Роль</label><select id="e_role"><option value="user">Працівник</option><option value="leader">Старший групи</option><option value="admin">Адмін</option></select></div><div class="col-3"><label>Напрямок старшого</label><select id="e_leader"><option value="">—</option>${directions.map(d=>`<option>${d}</option>`).join('')}</select></div><div class="col-3"><label>Ставка за день</label><input id="e_rate" type="number" value="2500"></div><div class="col-3"><label>Утримання</label><input id="e_ded" type="number" value="48000"></div><div class="col-12"><button class="primary" onclick="addEmployee()">Додати працівника</button></div></div><hr><div id="emps">Завантаження...</div>`;loadEmployees()}
-async function addEmployee(){const rec={full_name:e_full.value.trim(),callsign:e_call.value.trim(),email:e_email.value.trim(),password:e_password.value.trim(),phone:e_phone.value||null,birth_date:e_birth.value||null,employment_type:e_emp.value,status:e_status.value,role:e_role.value,leader_direction:e_leader.value||null,daily_rate:+e_rate.value||2500,employee_deduction:+e_ded.value||48000}; if(!rec.full_name||!rec.email||!rec.password)return msg('Заповніть ПІБ, email і пароль'); const resp=await fetch('/api/create-employee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(rec)}); const data=await resp.json().catch(()=>({error:'Невідома помилка'})); if(!resp.ok)return msg(data.error||'Помилка створення'); await sb.from('users').update({daily_rate:rec.daily_rate,employee_deduction:rec.employee_deduction}).eq('auth_id',data.auth_id); await logAction('Створено працівника',rec); msg('Працівника створено автоматично'); screenEmployees()}
-async function loadEmployees(){
-  const list=document.getElementById('emps');
-  const {data,error}=await sb.from('users').select('*').order('full_name');
-  if(error)return list.innerHTML=esc(error.message);
-  const rows=data||[];
-  list.innerHTML=`<div class="table-wrap"><table><thead><tr>
-    <th>ПІБ</th><th>Позивний</th><th>Email</th><th>Телефон</th><th>Дата нар.</th><th>Роль</th><th>Тип</th><th>Стан</th><th>Ставка</th><th>Утримання</th><th>Напрямок</th><th></th>
-  </tr></thead><tbody>${rows.map(u=>`<tr>
-    <td><input id="full_${u.id}" value="${esc(u.full_name||'')}"></td>
-    <td><input id="call_${u.id}" value="${esc(u.callsign||'')}"></td>
-    <td><input id="email_${u.id}" type="email" value="${esc(u.email||'')}"></td>
-    <td><input id="phone_${u.id}" value="${esc(u.phone||'')}"></td>
-    <td><input id="birth_${u.id}" type="date" value="${u.birth_date||''}"></td>
-    <td><select id="role_${u.id}">
-      <option value="user" ${u.role==='user'?'selected':''}>Працівник</option>
-      <option value="leader" ${u.role==='leader'?'selected':''}>Старший</option>
-      <option value="admin" ${u.role==='admin'?'selected':''}>Адмін</option>
-    </select></td>
-    <td><select id="emp_${u.id}">
-      <option value="employee" ${u.employment_type==='employee'?'selected':''}>Працевлаштований</option>
-      <option value="freelancer" ${u.employment_type==='freelancer'?'selected':''}>Фрілансер</option>
-    </select></td>
-    <td><select id="status_${u.id}">
-      <option value="active" ${(u.status||u.employee_status)==='active'?'selected':''}>Активний</option>
-      <option value="dismissed" ${(u.status||u.employee_status)==='dismissed'?'selected':''}>Звільнений</option>
-    </select></td>
-    <td><input id="rate_${u.id}" type="number" value="${u.daily_rate||2500}"></td>
-    <td><input id="ded_${u.id}" type="number" value="${u.employee_deduction||48000}"></td>
-    <td><select id="leader_${u.id}"><option value="">—</option>${directions.map(d=>`<option value="${d}" ${u.leader_direction===d?'selected':''}>${d}</option>`).join('')}</select></td>
-    <td><button class="primary" onclick="saveEmployee('${u.id}')">Зберегти</button></td>
-  </tr>`).join('')}</tbody></table></div>`;
+function editAdminEmployee(id){
+  const e=(window.adminEmployees||[]).find(x=>x.id===id);
+  if(!e)return;
+  admEmpId.value=e.id;
+  admFullName.value=e.full_name||'';
+  admPhone.value=e.phone||'';
+  admType.value=e.employment_type||'freelancer';
+  admActive.value=(e.is_active===false?'false':'true');
+  admFullName.focus();
 }
-async function saveEmployee(id){
-  const before = await sb.from('users').select('*').eq('id',id).maybeSingle();
-  const upd={
-    full_name:document.getElementById('full_'+id).value.trim(),
-    callsign:document.getElementById('call_'+id).value.trim()||null,
-    email:document.getElementById('email_'+id).value.trim()||null,
-    phone:document.getElementById('phone_'+id).value.trim()||null,
-    birth_date:document.getElementById('birth_'+id).value||null,
-    role:document.getElementById('role_'+id).value,
-    employment_type:document.getElementById('emp_'+id).value,
-    status:document.getElementById('status_'+id).value,
-    employee_status:document.getElementById('status_'+id).value,
-    daily_rate:+document.getElementById('rate_'+id).value||2500,
-    employee_deduction:+document.getElementById('ded_'+id).value||0,
-    leader_direction:document.getElementById('leader_'+id).value||null
+function clearAdminEmployeeForm(){
+  ['admEmpId','admFullName','admPhone'].forEach(id=>{const el=document.getElementById(id); if(el)el.value=''});
+  if(document.getElementById('admType'))admType.value='freelancer';
+  if(document.getElementById('admActive'))admActive.value='true';
+}
+async function saveAdminEmployee(){
+  if(!initSupabase())return msg('Немає підключення Supabase.','danger');
+  if(!admEmpId.value)return msg('Спочатку натисніть “Редагувати” біля працівника.','danger');
+  const payload={
+    full_name:admFullName.value.trim(),
+    phone:normalizePhone(admPhone.value),
+    employment_type:admType.value,
+    is_active:admActive.value==='true'
   };
-  if(!upd.full_name)return msg('ПІБ не може бути порожнім');
-  const {error}=await sb.from('users').update(upd).eq('id',id);
-  if(error)return msg(error.message);
-  await logAction('Оновлено працівника',{old:before.data||null,new:upd});
-  msg('Працівника оновлено');
-  loadEmployees();
+  if(!payload.full_name||!payload.phone)return msg('ПІБ і телефон обовʼязкові.','danger');
+  const {error}=await supabaseClient.from('employees').update(payload).eq('id',admEmpId.value);
+  if(error)return msg(error.message,'danger');
+  msg('Дані працівника оновлено.','success');
+  clearAdminEmployeeForm();
+  await loadAdmin();
 }
-async function screenReports(){const {data,error}=await sb.from('salary_summary').select('*').order('salary_month',{ascending:false}); screenEl().innerHTML='<h2>Звіти</h2><button onclick="exportSalaryExcel()">Експорт Excel</button><hr>'+ (error?esc(error.message):`<div class="table-wrap"><table><thead><tr><th>Місяць</th><th>ПІБ</th><th>Днів</th><th>Ставка</th><th>Зарплата</th><th>Витрати</th><th>Коригування</th><th>Утримання</th><th>До виплати</th></tr></thead><tbody>${(data||[]).map(r=>`<tr><td>${r.salary_month}</td><td>${esc(r.full_name)}</td><td>${r.work_days_count}</td><td>${fmt(r.daily_rate||0)}</td><td>${fmt(r.base_salary)}</td><td>${fmt((+r.fuel_total||0)+(+r.amortization_total||0)+(+r.accommodation_total||0))}</td><td>${fmt(r.adjustments_total||0)}</td><td>${fmt(r.employee_deduction)}</td><td><b>${fmt(r.total_to_pay)}</b></td></tr>`).join('')}</tbody></table></div>`)}
-async function exportSalaryExcel(){const {data,error}=await sb.from('salary_summary').select('*').order('salary_month',{ascending:false}); if(error)return msg(error.message); if(!data?.length)return msg('Немає даних'); const rows=[['Місяць','ПІБ','Позивний','Днів','Ставка/день','Зарплата','Пальне','Амортизація','Проживання','Утримання','Коригування','До виплати'],...data.map(r=>[r.salary_month,r.full_name,r.callsign||'',r.work_days_count||0,r.daily_rate||0,r.base_salary||0,r.fuel_total||0,r.amortization_total||0,r.accommodation_total||0,r.employee_deduction||0,r.adjustments_total||0,r.total_to_pay||0])]; const csv=rows.map(row=>row.map(cell=>`"${String(cell).replace(/"/g,'""')}"`).join(';')).join('\n'); const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'}); const link=document.createElement('a'); link.href=URL.createObjectURL(blob); link.download='zp-vd-zvit.csv'; link.click()}
-async function screenAdjustments(){const month=(window.currentAdjustmentMonth||ym().slice(0,7)); screenEl().innerHTML=`<h2>Коригування зарплати</h2><div class="row"><div class="col-3"><label>Місяць</label><input id="a_month" type="month" value="${month}" onchange="window.currentAdjustmentMonth=this.value;loadAdjustments()"></div><div class="col-3"><label>Працівник</label><select id="a_user"></select></div><div class="col-2"><label>Тип</label><select id="a_type"><option value="bonus">Премія</option><option value="fine">Штраф</option></select></div><div class="col-2"><label>Сума</label><input id="a_amount" type="number" value="0"></div><div class="col-12"><label>Коментар</label><input id="a_comment" placeholder="Причина коригування"></div><div class="col-12"><button class="primary" onclick="addAdjustment()">Додати коригування</button></div></div><hr><div id="adj_list">Завантаження...</div>`; await fillAdjustmentUsers(); loadAdjustments()}
-async function fillAdjustmentUsers(){const {data,error}=await sb.from('users').select('id,full_name,callsign,status').order('full_name'); if(error)return msg(error.message); a_user.innerHTML=(data||[]).filter(u=>u.status!=='dismissed').map(u=>`<option value="${u.id}">${esc(u.full_name)} ${u.callsign?'('+esc(u.callsign)+')':''}</option>`).join('')}
-function adjustmentMonth(){return (document.getElementById('a_month')?.value||window.currentAdjustmentMonth||ym().slice(0,7))+'-01'}
-async function addAdjustment(){const rec={user_id:a_user.value,adjustment_month:adjustmentMonth(),type:a_type.value,amount:+a_amount.value||0,title:a_comment.value||(a_type.value==='bonus'?'Премія':'Штраф'),comment:a_comment.value||'',created_by:profile.id}; if(!rec.user_id)return msg('Оберіть працівника'); if(rec.amount<=0)return msg('Вкажіть суму більше 0'); const {error}=await sb.from('adjustments').insert(rec); if(error)return msg(error.message); await logAction('Додано коригування',rec); msg('Коригування додано'); a_amount.value=0; a_comment.value=''; loadAdjustments()}
-async function loadAdjustments(){const adjList=document.getElementById('adj_list'); if(!adjList)return; const month=adjustmentMonth(); const {data,error}=await sb.from('adjustments').select('*').eq('adjustment_month',month).order('created_at',{ascending:false}); if(error)return adjList.innerHTML=esc(error.message); if(!data?.length)return adjList.innerHTML='<p class="muted">Коригувань за цей місяць немає.</p>'; const ids=[...new Set(data.map(a=>a.user_id).filter(Boolean))]; let users=[]; if(ids.length){const r=await sb.from('users').select('id,full_name,callsign').in('id',ids); if(r.error)return adjList.innerHTML=esc(r.error.message); users=r.data||[]} const usersMap=Object.fromEntries(users.map(u=>[u.id,u])); adjList.innerHTML=`<div class="table-wrap"><table><thead><tr><th>Працівник</th><th>Тип</th><th>Сума</th><th>Коментар</th><th>Дата</th><th></th></tr></thead><tbody>${data.map(a=>{const u=usersMap[a.user_id]||{};return `<tr><td>${esc(u.full_name||'')} ${u.callsign?'('+esc(u.callsign)+')':''}</td><td>${a.type==='bonus'?'<span class="pill green">Премія</span>':'<span class="pill red">Штраф</span>'}</td><td>${fmt(a.amount)}</td><td>${esc(a.comment||a.title||'')}</td><td>${a.created_at?new Date(a.created_at).toLocaleString('uk-UA'):''}</td><td><button class="danger" onclick="deleteAdjustment('${a.id}')">Видалити</button></td></tr>`}).join('')}</tbody></table></div>`}
-async function deleteAdjustment(id){if(!confirm('Видалити це коригування?'))return; const {error}=await sb.from('adjustments').delete().eq('id',id); if(error)return msg(error.message); await logAction('Видалено коригування',id); msg('Видалено'); loadAdjustments()}
-async function logAction(action,details){try{await sb.from('audit_log').insert({user_id:profile?.id||null,action,details:details??''})}catch(e){}}
-function formatWorkDayDetails(d,prefix){const lines=[]; if(prefix)lines.push(prefix); if(d?.work_date)lines.push('Дата роботи: '+String(d.work_date).split('-').reverse().join('.')); if(d?.directions?.length)lines.push('Напрямки: '+d.directions.join(', ')); else if(d?.direction)lines.push('Напрямок: '+d.direction); if(d?.fuel!==undefined)lines.push('Пальне: '+fmt(d.fuel)); if(d?.amortization!==undefined)lines.push('Амортизація: '+fmt(d.amortization)); if(d?.accommodation!==undefined)lines.push('Проживання: '+fmt(d.accommodation)); if(d?.comment)lines.push('Коментар: '+d.comment); return lines}
-function formatAuditDetails(details){if(details==null||details==='')return ''; let d=details; if(typeof d==='string'){const t=d.trim(); if(t==='[object Object]')return 'Деталі записані у старому форматі'; try{d=JSON.parse(t)}catch(e){return esc(d)}} if(typeof d!=='object')return esc(String(d)); if(d.old&&d.new){const lines=[]; lines.push(...formatWorkDayDetails(d.old,'Було:')); lines.push(''); lines.push(...formatWorkDayDetails(d.new,'Стало:')); return esc(lines.join('\n'))} const lines=[]; if(d.work_date||d.directions||d.direction||d.fuel!==undefined||d.amortization!==undefined||d.accommodation!==undefined)lines.push(...formatWorkDayDetails(d,'')); if(d.amount!==undefined)lines.push('Сума: '+fmt(d.amount)); if(d.type)lines.push('Тип: '+(d.type==='bonus'?'Премія':d.type==='fine'?'Штраф':d.type)); if(d.month||d.adjustment_month)lines.push('Місяць: '+String(d.month||d.adjustment_month).slice(0,7)); if(d.daily_rate!==undefined)lines.push('Ставка/день: '+fmt(d.daily_rate)); if(d.employee_deduction!==undefined)lines.push('Утримання: '+fmt(d.employee_deduction)); if(d.full_name)lines.push('ПІБ: '+d.full_name); if(d.callsign)lines.push('Позивний: '+d.callsign); if(d.email)lines.push('Email: '+d.email); if(d.comment&&!lines.some(x=>x.startsWith('Коментар:')))lines.push('Коментар: '+d.comment); if(d.count!==undefined)lines.push('Кількість працівників: '+d.count); if(lines.length)return esc(lines.join('\n')); return esc(JSON.stringify(d,null,2))}
-async function screenAudit(){screenEl().innerHTML='<h2>Журнал дій</h2><div id="audit_list">Завантаження...</div>'; const {data,error}=await sb.from('audit_log').select('*').order('created_at',{ascending:false}).limit(250); const list=document.getElementById('audit_list'); if(error)return list.innerHTML=esc(error.message); if(!data?.length)return list.innerHTML='<p class="muted">Записів у журналі ще немає.</p>'; const ids=[...new Set(data.map(x=>x.user_id).filter(Boolean))]; let users=[]; if(ids.length){const r=await sb.from('users').select('id,full_name,callsign').in('id',ids); users=r.data||[]} const map=Object.fromEntries(users.map(u=>[u.id,u])); list.innerHTML=`<div class="table-wrap"><table><thead><tr><th>Дата</th><th>Користувач</th><th>Дія</th><th>Деталі</th></tr></thead><tbody>${data.map(a=>{const u=map[a.user_id]||{};return `<tr><td>${a.created_at?new Date(a.created_at).toLocaleString('uk-UA'):''}</td><td>${esc(u.full_name||'')} ${u.callsign?'('+esc(u.callsign)+')':''}</td><td>${esc(a.action||'')}</td><td><pre class="audit-details">${formatAuditDetails(a.details)}</pre></td></tr>`}).join('')}</tbody></table></div>`}
-async function screenLeader(){const dir=profile.leader_direction; if(!dir)return screenEl().innerHTML='<h2>Мій напрямок</h2><p>Вам не призначено напрямок.</p>'; const m=ym(); const {data,error}=await sb.from('work_days').select('*').gte('work_date',m).lte('work_date',monthEnd(m)).order('work_date',{ascending:false}).limit(200); if(error)return screenEl().innerHTML=esc(error.message); const rows=(data||[]).filter(d=>(d.directions||[]).includes(dir)); await attachUsers(rows); screenEl().innerHTML=`<h2>Звіти по напрямку: ${esc(dir)}</h2>${tableDays(rows,true)}`}
-async function attachUsers(rows){const ids=[...new Set(rows.map(r=>r.user_id).filter(Boolean))]; if(!ids.length)return rows; const {data}=await sb.from('users').select('id,full_name,callsign').in('id',ids); const map=Object.fromEntries((data||[]).map(u=>[u.id,u])); rows.forEach(r=>{const u=map[r.user_id]||{}; r.user_name=(u.full_name||'')+(u.callsign?' ('+u.callsign+')':'')}); return rows}
-function selectedLockMonth(){return document.getElementById('lock_month').value+'-01'}
-async function screenLocks(){const month=window.currentLockMonth||ym().slice(0,7); screenEl().innerHTML=`<h2>Закриття місяця</h2><label>Оберіть місяць</label><input id="lock_month" type="month" value="${month}" onchange="window.currentLockMonth=this.value;screenLocksLoad()"><div id="locks_area" style="margin-top:16px">Завантаження...</div>`; screenLocksLoad()}
-async function screenLocksLoad(){const month=selectedLockMonth(); const {data:users,error:uErr}=await sb.from('users').select('id, full_name, callsign, status').order('full_name'); if(uErr)return locks_area.innerHTML=esc(uErr.message); const {data:locks,error:lErr}=await sb.from('month_locks').select('*').eq('lock_month',month); if(lErr)return locks_area.innerHTML=esc(lErr.message); const lockedIds=new Set((locks||[]).map(l=>l.user_id)); locks_area.innerHTML=`<button class="primary" onclick="closeMonthAll()">Закрити вибраний місяць всім активним</button> <button class="secondary" onclick="openMonthAll()">Відкрити всім</button><hr><h3>Закрити вибраним</h3><div class="checkrow">${(users||[]).map(u=>`<label><input type="checkbox" name="lock_user" value="${u.id}" ${lockedIds.has(u.id)?'checked':''}> ${esc(u.full_name)} ${u.callsign?'('+esc(u.callsign)+')':''} ${lockedIds.has(u.id)?'🔒':''}</label>`).join('')}</div><div style="height:14px"></div><button onclick="closeMonthSelected()">Закрити вибраним</button> <button class="secondary" onclick="openMonthSelected()">Відкрити вибраним</button><hr><h3>Закриті за місяць</h3>${(locks||[]).length?`<div class="table-wrap"><table><thead><tr><th>Працівник</th><th>Дата закриття</th></tr></thead><tbody>${(locks||[]).map(l=>{const u=(users||[]).find(x=>x.id===l.user_id);return `<tr><td>${u?esc(u.full_name):l.user_id}</td><td>${l.locked_at?new Date(l.locked_at).toLocaleString('uk-UA'):''}</td></tr>`}).join('')}</tbody></table></div>`:'<p class="muted">За цей місяць ще нікого не закрито.</p>'}`}
-async function closeMonthAll(){if(!confirm('Закрити вибраний місяць всім активним працівникам?'))return; const month=selectedLockMonth(); const {data:users,error:uErr}=await sb.from('users').select('id').eq('status','active'); if(uErr)return msg(uErr.message); const rows=(users||[]).map(u=>({salary_month:month,lock_month:month,user_id:u.id,locked_by:profile.id})); const {error}=await sb.from('month_locks').upsert(rows,{onConflict:'lock_month,user_id'}); if(error)return msg(error.message); await logAction('Закрито місяць всім',month); msg('Місяць закрито'); screenLocksLoad()}
-async function closeMonthSelected(){const ids=[...document.querySelectorAll('input[name=lock_user]:checked')].map(x=>x.value); if(!ids.length)return msg('Оберіть хоча б одного працівника'); const month=selectedLockMonth(); const rows=ids.map(id=>({salary_month:month,lock_month:month,user_id:id,locked_by:profile.id})); const {error}=await sb.from('month_locks').upsert(rows,{onConflict:'lock_month,user_id'}); if(error)return msg(error.message); await logAction('Закрито місяць вибраним',{month,count:ids.length}); msg('Місяць закрито вибраним'); screenLocksLoad()}
-async function openMonthAll(){if(!confirm('Відкрити вибраний місяць всім?'))return; const month=selectedLockMonth(); const {error}=await sb.from('month_locks').delete().eq('lock_month',month); if(error)return msg(error.message); await logAction('Відкрито місяць всім',month); msg('Відкрито'); screenLocksLoad()}
-async function openMonthSelected(){const ids=[...document.querySelectorAll('input[name=lock_user]:checked')].map(x=>x.value); if(!ids.length)return msg('Оберіть хоча б одного працівника'); const month=selectedLockMonth(); const {error}=await sb.from('month_locks').delete().eq('lock_month',month).in('user_id',ids); if(error)return msg(error.message); await logAction('Відкрито місяць вибраним',{month,count:ids.length}); msg('Відкрито вибраним'); screenLocksLoad()}
-init();
+
+function reloadAll(){loadWorkDays();loadAdmin()}
+(function(){initSupabase();adminMonth.value=new Date().toISOString().slice(0,7);workDate.value=new Date().toISOString().slice(0,10);renderCalendar();renderStats()})();
 </script>
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(err => console.warn('SW registration failed', err));
-  });
-}
-</script>
-</body></html>
+</body>
+</html>
