@@ -71,8 +71,8 @@ async function logout(){await sb.auth.signOut(); location.reload()}
 async function loadProfile(){const uid=me.id; let {data}=await sb.from('users').select('*').or(`auth_id.eq.${uid},auth_user_id.eq.${uid},id.eq.${uid},email.eq.${me.email}`).maybeSingle(); profile=data||null}
 function renderNoProfile(){app.innerHTML=`<div class="wrap"><div class="card login"><h1 class="title">Профіль не знайдено</h1><p>Користувач авторизований, але не прив’язаний до таблиці users.</p><input readonly value="${me.id}"><br><br><button class="btn" onclick="logout()">Вийти</button></div></div>`}
 function renderBlocked(){app.innerHTML=`<div class="wrap"><div class="card login"><h1 class="title">Доступ заблоковано</h1><p>Ваш профіль має статус звільнений/неактивний.</p><button class="btn" onclick="logout()">Вийти</button></div></div>`}
-function nav(){let items=[['dashboard','Головна'],['days','Робочі дні'],['payslip','Мій розрахунок'],['profile','Мій профіль']]; if(profile.role==='leader')items.push(['leader','Мій напрямок']); if(profile.role==='admin')items.push(['employees','Працівники'],['reports','Звіти'],['adjustments','Коригування'],['locks','Закриття місяця'],['audit','Журнал']); return `<div class="nav">${items.map(i=>`<button class="${tab===i[0]?'active':''}" onclick="tab='${i[0]}';renderApp()">${i[1]}</button>`).join('')}<button onclick="logout()">Вийти</button></div>`}
-function renderApp(){app.innerHTML=`<div class="wrap"><div class="top"><div><h1 class="title">ЗП-VD</h1><div class="muted">${esc(profile.full_name)} ${profile.callsign?'('+esc(profile.callsign)+')':''} · ${roleName(profile.role)}</div></div><button class="btn blue" onclick="installApp()">Встановити застосунок</button><button class="btn green" onclick="enablePushNotifications()">Увімкнути push</button><button class="btn" onclick="location.reload()">Оновити</button></div>${nav()}<div id="screen" class="card">Завантаження...</div></div>`; const map={dashboard:screenDashboard,days:screenDays,payslip:screenPayslip,profile:screenProfile,leader:screenLeader,employees:screenEmployees,reports:screenReports,adjustments:screenAdjustments,locks:screenLocks,audit:screenAudit}; (map[tab]||screenDashboard)()}
+function nav(){let items=[['dashboard','Головна'],['days','Робочі дні'],['payslip','Мій розрахунок'],['profile','Мій профіль']]; if(profile.role==='leader')items.push(['leader','Мій напрямок']); if(profile.role==='admin')items.push(['employees','Працівники'],['reports','Звіти'],['missing','Невнесені звіти'],['adjustments','Коригування'],['locks','Закриття місяця'],['audit','Журнал']); return `<div class="nav">${items.map(i=>`<button class="${tab===i[0]?'active':''}" onclick="tab='${i[0]}';renderApp()">${i[1]}</button>`).join('')}<button onclick="logout()">Вийти</button></div>`}
+function renderApp(){app.innerHTML=`<div class="wrap"><div class="top"><div><h1 class="title">ЗП-VD</h1><div class="muted">${esc(profile.full_name)} ${profile.callsign?'('+esc(profile.callsign)+')':''} · ${roleName(profile.role)}</div></div><button class="btn blue" onclick="installApp()">Встановити застосунок</button><button class="btn green" onclick="enablePushNotifications()">Увімкнути push</button><button class="btn" onclick="location.reload()">Оновити</button></div>${nav()}<div id="screen" class="card">Завантаження...</div></div>`; const map={dashboard:screenDashboard,days:screenDays,payslip:screenPayslip,profile:screenProfile,leader:screenLeader,employees:screenEmployees,reports:screenReports,missing:screenMissing,adjustments:screenAdjustments,locks:screenLocks,audit:screenAudit}; (map[tab]||screenDashboard)()}
 async function logAction(action,details){try{await sb.from('audit_log').insert({user_id:profile.id,action,details})}catch(e){}}
 async function monthWorkRows(userId,month){const from=month, to=monthEnd(month); let q=sb.from('work_days').select('*').gte('work_date',from).lte('work_date',to); if(userId)q=q.eq('user_id',userId); const {data,error}=await q; if(error)throw error; return data||[]}
 async function ratesForUsers(userIds){if(!userIds.length)return []; const {data}=await sb.from('salary_rates_history').select('*').in('user_id',userIds).order('effective_from',{ascending:true}); return data||[]}
@@ -228,7 +228,7 @@ async function screenReports(){
     <div class="monthLine">
       <label>Місяць звіту</label>
       <input type="month" value="${m.slice(0,7)}" onchange="window.reportMonth=this.value+'-01';screenReports()">
-      <button class="btn" onclick="exportSalaryExcel()">Експорт Excel</button>
+      <button class="btn" onclick="exportSalaryExcel()">Експорт Excel</button> <button class="btn blue" onclick="exportMonthBackupJSON()">Backup JSON</button>
     </div>
     <h3>Зведений розрахунок</h3>
     <div class="scroll"><table><thead><tr><th>ПІБ</th><th>Днів</th><th>Зарплата</th><th>Витрати</th><th>Кориг.</th><th>Утримання</th><th>До виплати</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.full_name)}</td><td>${r.work_days_count}</td><td>${fmt(r.base_salary)}</td><td>${fmt((r.fuel_total||0)+(r.amortization_total||0)+(r.accommodation_total||0))}</td><td>${fmt(r.adjustments_total)}</td><td>${fmt(r.employee_deduction)}</td><td><b>${fmt(r.total_to_pay)}</b></td></tr>`).join('')}</tbody></table></div>
@@ -264,6 +264,94 @@ async function adminEditWorkDay(id){
   screenReports();
 }
 async function exportSalaryExcel(){const rows=await calculateMonth(null,window.reportMonth||ym()); const arr=[['ПІБ','Днів','Зарплата','Пальне','Амортизація','Проживання','Коригування','Утримання','До виплати'],...rows.map(r=>[r.full_name,r.work_days_count,r.base_salary,r.fuel_total,r.amortization_total,r.accommodation_total,r.adjustments_total,r.employee_deduction,r.total_to_pay])]; const csv=arr.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(';')).join('\n'); const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv'})); a.download='zp-vd.csv'; a.click()}
+
+async function exportMonthBackupJSON(){
+  if(profile.role!=='admin')return msg('Доступ лише для адміна');
+  const month=window.reportMonth||ym();
+  const from=month, to=monthEnd(month);
+  try{
+    const [usersRes, daysRes, adjRes, locksRes, ratesRes, auditRes]=await Promise.all([
+      sb.from('users').select('*').order('full_name'),
+      sb.from('work_days').select('*, users(full_name,callsign,email)').gte('work_date',from).lte('work_date',to).order('work_date',{ascending:true}),
+      sb.from('adjustments').select('*').eq('adjustment_month',month),
+      sb.from('month_locks').select('*').or(`lock_month.eq.${month},salary_month.eq.${month}`),
+      sb.from('salary_rates_history').select('*').lte('effective_from',to).order('effective_from',{ascending:true}),
+      sb.from('audit_log').select('*').gte('created_at',from).lte('created_at',to+'T23:59:59').order('created_at',{ascending:true})
+    ]);
+    const payload={
+      exported_at:new Date().toISOString(),
+      month,
+      users:usersRes.data||[],
+      work_days:daysRes.data||[],
+      adjustments:adjRes.data||[],
+      month_locks:locksRes.data||[],
+      salary_rates_history:ratesRes.data||[],
+      audit_log:auditRes.data||[]
+    };
+    const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=`zp-vd-backup-${month.slice(0,7)}.json`;
+    a.click();
+  }catch(e){msg('Backup не створено: '+(e.message||e));}
+}
+async function screenMissing(){
+  if(profile.role!=='admin')return document.getElementById('screen').innerHTML='<p>Доступ лише для адміна</p>';
+  const m=window.missingMonth||ym();
+  const dir=window.missingDir||'';
+  const status=window.missingStatus||'active';
+  document.getElementById('screen').innerHTML=`<h2>Невнесені звіти</h2>
+    <div class="row">
+      <div class="col-3"><label>Місяць</label><input id="missing_month" type="month" value="${m.slice(0,7)}" onchange="window.missingMonth=this.value+'-01';screenMissing()"></div>
+      <div class="col-3"><label>Напрямок</label><select id="missing_dir" onchange="window.missingDir=this.value;screenMissing()"><option value="">Усі</option>${directions.map(d=>`<option value="${d}" ${dir===d?'selected':''}>${d}</option>`).join('')}</select></div>
+      <div class="col-3"><label>Статус</label><select id="missing_status" onchange="window.missingStatus=this.value;screenMissing()"><option value="active" ${status==='active'?'selected':''}>Активні</option><option value="all" ${status==='all'?'selected':''}>Усі</option><option value="dismissed" ${status==='dismissed'?'selected':''}>Звільнені</option></select></div>
+      <div class="col-3"><label>Push</label><button class="btn green" onclick="sendReminderNow()">Нагадати зараз</button></div>
+    </div>
+    <hr><div id="missing_area">Завантаження...</div>`;
+  await loadMissingReports();
+}
+async function loadMissingReports(){
+  const area=document.getElementById('missing_area');
+  const month=window.missingMonth||ym();
+  const from=month, to=monthEnd(month);
+  const dir=window.missingDir||'';
+  const status=window.missingStatus||'active';
+  let uq=sb.from('users').select('*').order('full_name');
+  if(status==='active')uq=uq.neq('status','dismissed');
+  if(status==='dismissed')uq=uq.eq('status','dismissed');
+  if(dir)uq=uq.eq('leader_direction',dir);
+  const {data:users,error:uErr}=await uq;
+  if(uErr)return area.innerHTML=uErr.message;
+  const ids=(users||[]).map(u=>u.id);
+  let work=[];
+  if(ids.length){
+    const {data,error}=await sb.from('work_days').select('user_id,work_date,created_at,submitted_at,directions,direction').in('user_id',ids).gte('work_date',from).lte('work_date',to).order('work_date',{ascending:false});
+    if(error)return area.innerHTML=error.message;
+    work=data||[];
+  }
+  const rows=(users||[]).map(u=>{
+    const wr=work.filter(w=>w.user_id===u.id);
+    const last=wr[0];
+    return {...u, report_count:wr.length, last_work_date:last?.work_date||'', last_submitted_at:last?.submitted_at||last?.created_at||''};
+  });
+  const missing=rows.filter(r=>r.report_count===0);
+  const present=rows.filter(r=>r.report_count>0);
+  area.innerHTML=`<div class="grid"><div class="card stat"><span class="muted">Працівників</span><br><b>${rows.length}</b></div><div class="card stat"><span class="muted">Не подали жодного дня</span><br><b>${missing.length}</b></div><div class="card stat"><span class="muted">Подали звіт</span><br><b>${present.length}</b></div><div class="card stat"><span class="muted">Місяць</span><br><b>${month.slice(0,7)}</b></div></div>
+  <h3>Не подали жодного дня</h3>${missing.length?missingTable(missing):'<p class="muted">Усі активні працівники мають записи за цей місяць.</p>'}
+  <h3>Подали звіти</h3>${present.length?missingTable(present):'<p class="muted">Записів немає.</p>'}`;
+}
+function missingTable(rows){
+  return `<div class="scroll"><table><thead><tr><th>Працівник</th><th>Позивний</th><th>Роль</th><th>Статус</th><th>Записів</th><th>Останній день</th><th>Остання подача</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.full_name)}</td><td>${esc(r.callsign||'')}</td><td>${roleName(r.role)}</td><td>${r.status==='dismissed'?'Звільнений':'Активний'}</td><td>${r.report_count}</td><td>${r.last_work_date||'—'}</td><td>${r.last_submitted_at?new Date(r.last_submitted_at).toLocaleString('uk-UA'):'—'}</td></tr>`).join('')}</tbody></table></div>`
+}
+async function sendReminderNow(){
+  try{
+    const resp=await fetch('/api/send-reminders?test=1');
+    const data=await resp.json().catch(()=>null);
+    if(!resp.ok)return msg(data?.error||'Помилка надсилання нагадувань');
+    msg(`Push: надіслано ${data?.sent??0}, пропущено ${data?.skipped??0}, помилок ${data?.failed??0}`);
+  }catch(e){msg('Не вдалося викликати нагадування: '+(e.message||e));}
+}
+
 function adjustmentMonth(){return (document.getElementById('adj_month')?.value||ym().slice(0,7))+'-01'}
 async function screenAdjustments(){const {data:users}=await sb.from('users').select('id,full_name,callsign').order('full_name'); document.getElementById('screen').innerHTML=`<h2>Коригування</h2><div class="row"><div class="col-3"><label>Місяць</label><input id="adj_month" type="month" value="${ym().slice(0,7)}" onchange="loadAdjustments()"></div><div class="col-3"><label>Працівник</label><select id="adj_user">${(users||[]).map(u=>`<option value="${u.id}">${esc(u.full_name)} ${u.callsign?'('+esc(u.callsign)+')':''}</option>`).join('')}</select></div><div class="col-2"><label>Тип</label><select id="adj_type"><option value="bonus">Премія</option><option value="fine">Штраф</option></select></div><div class="col-2"><label>Сума</label><input id="adj_amount" type="number"></div><div class="col-12"><textarea id="adj_comment" placeholder="Коментар"></textarea></div><div class="col-12"><button class="btn green" onclick="addAdjustment()">Додати</button></div></div><hr><div id="adj_list">Завантаження...</div>`;loadAdjustments()}
 async function addAdjustment(){const rec={user_id:adj_user.value,adjustment_month:adjustmentMonth(),type:adj_type.value,amount:+adj_amount.value||0,comment:adj_comment.value,title:adj_comment.value,created_by:profile.id}; const {error}=await sb.from('adjustments').insert(rec); if(error)return msg(error.message); await logAction('adjustment_added',rec); loadAdjustments()}
