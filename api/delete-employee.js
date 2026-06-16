@@ -1,26 +1,37 @@
-import { requireAdmin, readJson } from './_admin.js';
+import { readJson, verifyAdmin, supaFetch } from './_admin.js';
 
-export default async function handler(req,res){
-  if(req.method!=='POST') return res.status(405).json({error:'Method not allowed'});
-  try{
-    const {SUPABASE_URL,SERVICE_ROLE_KEY,profile}=await requireAdmin(req);
-    const body=await readJson(req);
-    const userId=body.user_id;
-    if(!userId) return res.status(400).json({error:'user_id обовʼязковий'});
-    if(userId===profile.id) return res.status(400).json({error:'Не можна видалити власний профіль'});
-    const uResp=await fetch(`${SUPABASE_URL}/rest/v1/users?select=*&id=eq.${userId}`,{headers:{apikey:SERVICE_ROLE_KEY,Authorization:`Bearer ${SERVICE_ROLE_KEY}`}});
-    const users=await uResp.json();
-    if(!uResp.ok||!users?.[0]) return res.status(404).json({error:'Працівника не знайдено'});
-    const u=users[0];
-    const authId=u.auth_id||u.auth_user_id;
-    let authDeleteStatus=null;
-    if(authId){
-      const ar=await fetch(`${SUPABASE_URL}/auth/v1/admin/users/${authId}`,{method:'DELETE',headers:{apikey:SERVICE_ROLE_KEY,Authorization:`Bearer ${SERVICE_ROLE_KEY}`}});
-      authDeleteStatus=ar.status;
+async function del(table, query) {
+  try { await supaFetch(`/rest/v1/${table}?${query}`, { method: 'DELETE' }); } catch (e) { /* ignore missing tables/policies under service role */ }
+}
+
+export default async function handler(req, res) {
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  try {
+    const { profile } = await verifyAdmin(req);
+    const { user_id } = await readJson(req);
+    if (!user_id) return res.status(400).json({ error: 'user_id обовʼязковий' });
+    if (user_id === profile.id) return res.status(400).json({ error: 'Не можна видалити власний профіль' });
+
+    const rows = await supaFetch(`/rest/v1/users?select=*&id=eq.${user_id}`);
+    const user = Array.isArray(rows) ? rows[0] : null;
+    if (!user) return res.status(404).json({ error: 'Працівника не знайдено' });
+
+    await del('work_days', `user_id=eq.${user_id}`);
+    await del('adjustments', `user_id=eq.${user_id}`);
+    await del('salary_rates_history', `user_id=eq.${user_id}`);
+    await del('month_locks', `user_id=eq.${user_id}`);
+    await del('push_subscriptions', `user_id=eq.${user_id}`);
+    await del('payslip_confirmations', `user_id=eq.${user_id}`);
+
+    await supaFetch(`/rest/v1/users?id=eq.${user_id}`, { method: 'DELETE' });
+
+    const authId = user.auth_id || user.auth_user_id;
+    if (authId) {
+      try { await supaFetch(`/auth/v1/admin/users/${authId}`, { method: 'DELETE' }); } catch (e) {}
     }
-    const del=await fetch(`${SUPABASE_URL}/rest/v1/users?id=eq.${userId}`,{method:'DELETE',headers:{apikey:SERVICE_ROLE_KEY,Authorization:`Bearer ${SERVICE_ROLE_KEY}`,'Prefer':'return=minimal'}});
-    const text=await del.text();
-    if(!del.ok) return res.status(del.status).json({error:text||'Не вдалося видалити профіль'});
-    return res.status(200).json({ok:true,authDeleteStatus});
-  }catch(e){return res.status(500).json({error:e.message||'Unknown error'});}
+
+    return res.status(200).json({ ok: true });
+  } catch (e) {
+    return res.status(500).json({ error: e.message || 'Unknown server error' });
+  }
 }
