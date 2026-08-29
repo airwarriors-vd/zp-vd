@@ -205,6 +205,26 @@ function tableDays(rows,showUser,adminActions=false){
   if(!rows.length)return '<p class="muted">Записів немає</p>';
   return `<div class="scroll"><table><thead><tr>${showUser?'<th>Працівник</th>':''}<th>Дата</th><th>Напрямки</th><th>Витрати</th><th>Чеки</th><th>Подано</th>${adminActions?'<th>Дії</th>':''}</tr></thead><tbody>${rows.map(r=>`<tr>${showUser?`<td>${esc(r.users?.full_name||r.full_name||'')} ${r.users?.callsign?'('+esc(r.users.callsign)+')':''}</td>`:''}<td>${r.work_date}</td><td>${(r.directions||[r.direction]).filter(Boolean).map(d=>`<span class="pill bluep">${esc(d)}</span>`).join(' ')}</td><td>${fmt((+r.fuel||0)+(+r.amortization||0)+(+r.accommodation||0))}</td><td>${receiptLinks(r)}</td><td>${(r.submitted_at||r.created_at)?new Date(r.submitted_at||r.created_at).toLocaleString('uk-UA'):''}</td>${adminActions?`<td><button class="btn small" onclick="adminEditWorkDay('${r.id}')">Редагувати</button> <button class="btn small red" onclick="adminDeleteWorkDay('${r.id}')">Видалити</button></td>`:''}</tr>`).join('')}</tbody></table></div>`
 }
+function tableDaysReport(rows,sortBy='employee',sortDir='asc'){
+  if(!rows.length)return '<p class="muted">Записів немає</p>';
+  const sorted=[...rows].sort((a,b)=>{
+    const av=sortBy==='date'?String(a.work_date||''):String(a.users?.full_name||a.full_name||'');
+    const bv=sortBy==='date'?String(b.work_date||''):String(b.users?.full_name||b.full_name||'');
+    const cmp=sortBy==='date'?av.localeCompare(bv):av.localeCompare(bv,'uk');
+    if(cmp!==0)return sortDir==='asc'?cmp:-cmp;
+    return String(b.work_date||'').localeCompare(String(a.work_date||''));
+  });
+  const arrow=(key)=>window.reportSortBy===key?(window.reportSortDir==='asc'?' ▲':' ▼'):'';
+  return `<div class="scroll"><table><thead><tr><th><button class="btn small" onclick="toggleReportSort('employee')">Працівник${arrow('employee')}</button></th><th><button class="btn small" onclick="toggleReportSort('date')">Дата${arrow('date')}</button></th><th>Напрямки</th><th>Витрати</th><th>Чеки</th><th>Подано</th><th>Дії</th></tr></thead><tbody>${sorted.map(r=>`<tr><td>${esc(r.users?.full_name||r.full_name||'')} ${r.users?.callsign?'('+esc(r.users.callsign)+')':''}</td><td>${r.work_date}</td><td>${(r.directions||[r.direction]).filter(Boolean).map(d=>`<span class="pill bluep">${esc(d)}</span>`).join(' ')}</td><td>${fmt((+r.fuel||0)+(+r.amortization||0)+(+r.accommodation||0))}</td><td>${receiptLinks(r)}</td><td>${(r.submitted_at||r.created_at)?new Date(r.submitted_at||r.created_at).toLocaleString('uk-UA'):''}</td><td><button class="btn small" onclick="adminEditWorkDay('${r.id}')">Редагувати</button> <button class="btn small red" onclick="adminDeleteWorkDay('${r.id}')">Видалити</button></td></tr>`).join('')}</tbody></table></div>`;
+}
+function toggleReportSort(key){if(window.reportSortBy===key)window.reportSortDir=window.reportSortDir==='asc'?'desc':'asc';else{window.reportSortBy=key;window.reportSortDir='asc';}renderReportWorkDays()}
+function renderReportWorkDays(){
+  const area=document.getElementById('report_work_days');
+  if(!area)return;
+  const filter=window.reportEmployeeFilter||'';
+  const rows=(window.reportDayRows||[]).filter(r=>!filter||String(r.user_id)===String(filter));
+  area.innerHTML=tableDaysReport(rows,window.reportSortBy||'employee',window.reportSortDir||'asc');
+}
 function payslipHtml(r,m){
   const expenses=(r.fuel_total||0)+(r.amortization_total||0)+(r.accommodation_total||0);
   const now=new Date().toLocaleString('uk-UA');
@@ -323,6 +343,10 @@ async function screenReports(){
     .lte('work_date',to)
     .order('submitted_at',{ascending:false,nullsFirst:false})
     .order('work_date',{ascending:false});
+  window.reportDayRows=dayRows||[];
+  window.reportEmployeeFilter=window.reportEmployeeFilter||'';
+  window.reportSortBy=window.reportSortBy||'employee';
+  window.reportSortDir=window.reportSortDir||'asc';
   document.getElementById('screen').innerHTML=`<h2>Звіти</h2>
     <div class="monthLine">
       <label>Місяць звіту</label>
@@ -333,8 +357,12 @@ async function screenReports(){
     <div class="scroll"><table><thead><tr><th>ПІБ</th><th>Днів</th><th>Зарплата</th><th>Витрати</th><th>Кориг.</th><th>Утримання</th><th>До виплати</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.full_name)}</td><td>${r.work_days_count}</td><td>${fmt(r.base_salary)}</td><td>${fmt((r.fuel_total||0)+(r.amortization_total||0)+(r.accommodation_total||0))}</td><td>${fmt(r.adjustments_total)}</td><td>${fmt(r.employee_deduction)}</td><td><b>${fmt(r.total_to_pay)}</b></td></tr>`).join('')}</tbody></table></div>
     <hr>
     <h3>Робочі дні та чеки працівників</h3>
-    ${dayErr?dayErr.message:tableDays(dayRows||[],true,true)}`;
+    ${dayErr?dayErr.message:`<div class="row" style="margin-bottom:12px">
+      <div class="col-6"><label>Працівник</label><select id="report_employee_filter" onchange="window.reportEmployeeFilter=this.value;renderReportWorkDays()"><option value="">Усі працівники</option>${[...new Map((window.reportDayRows||[]).map(r=>[r.user_id,r.users?.full_name||r.full_name||''])).entries()].sort((a,b)=>a[1].localeCompare(b[1],'uk')).map(([id,name])=>`<option value="${esc(id)}">${esc(name)}</option>`).join('')}</select></div>
+    </div><div id="report_work_days"></div>`}`;
+  if(!dayErr)renderReportWorkDays();
 }
+
 async function adminDeleteWorkDay(id){
   if(!confirm('Видалити цей робочий день?'))return;
   const {data:old}=await sb.from('work_days').select('*').eq('id',id).maybeSingle();
