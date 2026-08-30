@@ -1,5 +1,8 @@
 {
   "crons": [
-    { "path": "/api/send-reminders", "schedule": "*/2 * * * *" }
+    {
+      "path": "/api/cron-task",
+      "schedule": "0 12 * * *"
+    }
   ]
 }
