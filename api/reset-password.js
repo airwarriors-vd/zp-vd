@@ -9,7 +9,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'user_id і пароль мінімум 6 символів обовʼязкові' });
     }
 
-    const rows = await supaFetch(`/rest/v1/users?select=id,auth_id,auth_user_id,email&eq=id.${user_id}`);
+    const rows = await supaFetch(`/rest/v1/users?select=id,auth_id,auth_user_id,email&id=eq.${encodeURIComponent(user_id)}`);
     const user = Array.isArray(rows) ? rows[0] : null;
     if (!user) return res.status(404).json({ error: 'Працівника не знайдено' });
     const authId = user.auth_id || user.auth_user_id;
